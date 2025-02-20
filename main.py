@@ -1,5 +1,5 @@
 import pygame
-
+import math
 from src.circle import Circle
 from src.variables import (
     X_SIZE,
@@ -21,7 +21,41 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_o:
-                    circle = Circle(CIRCLE_DEFAULT_RADIUS, mouse_x, mouse_y, WHITE)
+                    circle = Circle(
+                        CIRCLE_DEFAULT_RADIUS,
+                        mouse_x,
+                        mouse_y,
+                        "EMITTER",
+                        WHITE,
+                        emitter_type="POINT",
+                        emit_color=None,
+                    )
+                    CIRCLES.append(circle)
+
+                elif event.key == pygame.K_d:
+                    circle = Circle(
+                        CIRCLE_DEFAULT_RADIUS,
+                        mouse_x,
+                        mouse_y,
+                        "EMITTER",
+                        WHITE,
+                        emitter_type="DIRECTIONAL",
+                        emit_color=None,
+                        directional_angle=math.pi / 4,
+                        directional_width=None,
+                    )
+                    CIRCLES.append(circle)
+                elif event.key == pygame.K_s:
+                    circle = Circle(
+                        CIRCLE_DEFAULT_RADIUS,
+                        mouse_x,
+                        mouse_y,
+                        "EMITTER",
+                        WHITE,
+                        emitter_type="SPOT",
+                        spot_angle=0,
+                        spot_arc=math.pi / 2,
+                    )
                     CIRCLES.append(circle)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:

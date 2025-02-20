@@ -6,10 +6,13 @@ X_SIZE = 800
 Y_SIZE = 600
 
 # assets
-CIRCLE_DEFAULT_RADIUS = 50
+CIRCLE_DEFAULT_RADIUS = 10
 CIRCLES = []
 DRAGGING_CIRCLE = None
-N_RAYS = 100
+N_RAYS = 10
+
+# directional light specific
+DIRECTIONAL_ANGLE_OFFSET = 10
 
 # colors
 WHITE = (255, 255, 255)
