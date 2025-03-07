@@ -1,5 +1,5 @@
 from typing import Tuple
-from math import pow
+import math
 
 
 def hexstr_int(hex_value: str) -> int:
@@ -37,3 +37,7 @@ def hex_to_rbg(hex_value: str) -> Tuple[int, int, int]:
         hexstr_int(hex_value[3:5]),
         hexstr_int(hex_value[6:]),
     )
+
+
+def degree_to_radian(degree: float) -> float:
+    return degree * (math.pi / 180)
