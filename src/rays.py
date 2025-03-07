@@ -33,9 +33,9 @@ class Ray:
 
         RAYS[self] = self.emitter
 
-    def draw(self, screen):
+    def draw(self, SCREEN):
         pygame.draw.line(
-            screen,
+            SCREEN,
             self.color,
             (self.x_start, self.y_start),
             (self.x_end, self.y_end),

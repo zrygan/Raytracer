@@ -1,11 +1,9 @@
-import pygame
-import math
 from src.util import *
 from src.objects import *
 from src.variables import *
+from src.shadowing import *
 
 if __name__ == "__main__":
-    screen = pygame.display.set_mode((X_SIZE, Y_SIZE))
     pygame.init()
 
     while RUNNING:
@@ -14,23 +12,32 @@ if __name__ == "__main__":
             if event.type == pygame.KEYDOWN:
                 # ADD: POINT EMITTER
                 if event.key == pygame.K_o:
-                    CIRCLES.append(Emitter_Point(mouse_x, mouse_y))
+                    obj = Emitter_Point(mouse_x, mouse_y)
+
+                    CIRCLES.append(obj)
+                    EMMITERS.append(obj)
 
                 # ADD: DIRECTIONAL EMITTER
                 elif event.key == pygame.K_d:
-                    CIRCLES.append(Emitter_Directional(mouse_x, mouse_y, math.pi / 4))
+                    obj = Emitter_Directional(mouse_x, mouse_y, math.pi / 4)
 
+                    CIRCLES.append(obj)
+                    EMMITERS.append(obj)
                 # ADD: SPOT EMITTER
                 elif event.key == pygame.K_s:
-                    CIRCLES.append(
-                        Emitter_Spot(
-                            mouse_x, mouse_y, degree_to_radian(90), degree_to_radian(20)
-                        )
+                    obj = Emitter_Spot(
+                        mouse_x, mouse_y, degree_to_radian(90), degree_to_radian(20)
                     )
+
+                    CIRCLES.append(obj)
+                    EMMITERS.append(obj)
 
                 # ADD: CIRCLE ABSORBER
                 elif event.key == pygame.K_a:
-                    CIRCLES.append(Absorber_Circle(mouse_x, mouse_y))
+                    obj = Absorber_Circle(mouse_x, mouse_y)
+
+                    CIRCLES.append(obj)
+                    ABSORBERS.append(obj)
 
                 # CHANGE: SPOT, DIRECTIONAL EMITTER ANGLE
                 elif event.key == pygame.K_COMMA or event.key == pygame.K_PERIOD:
@@ -69,27 +76,19 @@ if __name__ == "__main__":
             elif event.type == pygame.QUIT:
                 RUNNING = False
 
-        # update the screen
-        screen.fill(BLACK)
-        EMMITERS = [
-            circle
-            for circle in CIRCLES
-            if isinstance(circle, (Emitter_Directional, Emitter_Point, Emitter_Spot))
-        ]
-
-        ABSORBERS = [
-            circle
-            for circle in CIRCLES
-            if isinstance(circle, (Absorber_Circle, Absorber_Circle))
-        ]
+        # update the SCREEN
+        SCREEN.fill(BLACK)
 
         for circle in CIRCLES:
             if circle not in ASSETS:
                 ASSETS.append(circle)
 
-            circle.draw(screen)
+            circle.draw(SCREEN)
 
             if circle in EMMITERS:
                 for ray in circle.get_rays():
-                    ray.draw(screen)
+                    ray.draw(SCREEN)
+
+        check_shadows()
+
         pygame.display.update()

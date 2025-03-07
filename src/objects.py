@@ -1,15 +1,7 @@
 import pygame, math, numpy as np
 from typing import Tuple
 from src.util import *
-from src.variables import (
-    DEFAULT_RAY_COUNT,
-    WHITE,
-    CORNFLOWER_BLUE,
-    X_SIZE,
-    Y_SIZE,
-    DEFAULT_CIRCLE_RADIUS,
-    DIRECTIONAL_ANGLE_OFFSET,
-)
+from src.variables import *
 from src.rays import Ray
 from src.shadowing import *
 
@@ -37,16 +29,21 @@ class Circle:
         self.penetrable = penetrable if penetrable is not None else False
 
         if self.penetrable:
-            check_for_shadows(self)
+            check_shadows()
 
-    def draw(self, screen):
+    def draw(self, SCREEN):
         # the circle function here is a pygame function
         # different from the Circle class here
-        pygame.draw.circle(screen, self.fill_color, (self.x, self.y), self.radius)
+        pygame.draw.circle(SCREEN, self.fill_color, (self.x, self.y), self.radius)
 
     def move(self, x, y):
         self.x = x
         self.y = y
+
+        if self.get_penetrable():
+            for circle in EMMITERS:
+                circle.initialize_rays()
+            check_shadows()  # Use the new shadow checking function
 
     def change_color(self, fill_color):
         self.fill_color = fill_color
@@ -108,9 +105,11 @@ class Emitter_Point(Circle):
     def move(self, x, y):
         self.x = x
         self.y = y
-        for ray in self.rays:
-            ray.change_x(x)
-            ray.change_y(y)
+        self.rays = []
+        self.initialize_rays()
+
+        if self.get_penetrable():
+            check_shadows(self)
 
 
 class Emitter_Directional(Circle):
@@ -181,8 +180,11 @@ class Emitter_Directional(Circle):
         # this is a method overriding
         self.x = x
         self.y = y
+        self.rays = []
+        self.initialize_rays(x, y)
 
-        self.initialize_rays(x, y)  # reinitialize the rays given the new (x, y)
+        if self.get_penetrable():
+            check_shadows(self)
 
     def get_angle(self):
         return self.angle
@@ -250,9 +252,11 @@ class Emitter_Spot(Circle):
     def move(self, x, y):
         self.x = x
         self.y = y
-        for ray in self.rays:
-            ray.change_x(x)
-            ray.change_y(y)
+        self.rays = []
+        self.initialize_rays()
+
+        if self.get_penetrable():
+            check_shadows(self)
 
     def get_angle(self):
         return self.angle
@@ -277,6 +281,7 @@ class Absorber_Circle(Circle):
     ):
         radius = radius if radius is not None else DEFAULT_CIRCLE_RADIUS
         fill_color = fill_color if fill_color is not None else WHITE
+
         super().__init__(radius, x, y, fill_color, penetrable=True)
 
 

@@ -1,4 +1,5 @@
 from math import pi
+import pygame
 
 # This file contains all the global variables used in the program
 
@@ -8,6 +9,7 @@ X_SIZE = 800
 Y_SIZE = 600
 
 # default values
+SCREEN = pygame.display.set_mode((X_SIZE, Y_SIZE))
 DEFAULT_ANGLE_INCREMENT = (2 * pi) / 180
 DEFAULT_CIRCLE_RADIUS = 10
 DEFAULT_RAY_COUNT = 10
@@ -17,8 +19,8 @@ DEFAULT_RAY_MAX_LENGTH = 100000
 ASSETS = []
 RAYS = {}
 CIRCLES = []
-EMMITERS = {}
-ABSORBERS = {}
+EMMITERS = []
+ABSORBERS = []
 DRAGGING_CIRCLE = None
 
 # directional light specific
