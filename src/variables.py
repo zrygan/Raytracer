@@ -1,3 +1,5 @@
+from math import pi
+
 # This file contains all the global variables used in the program
 
 # pygame variables and game loop
@@ -5,11 +7,15 @@ RUNNING = True
 X_SIZE = 800
 Y_SIZE = 600
 
+# default values
+DEFAULT_ANGLE_INCREMENT = (2 * pi) / 180
+DEFAULT_CIRCLE_RADIUS = 10
+DEFAULT_RAY_COUNT = 10
+
 # assets
-CIRCLE_DEFAULT_RADIUS = 10
+ASSETS = []
 CIRCLES = []
 DRAGGING_CIRCLE = None
-N_RAYS = 10
 
 # directional light specific
 DIRECTIONAL_ANGLE_OFFSET = 10

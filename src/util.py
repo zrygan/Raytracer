@@ -1,5 +1,6 @@
 from typing import Tuple
 import math
+from src.variables import *
 
 
 def hexstr_int(hex_value: str) -> int:
@@ -41,3 +42,9 @@ def hex_to_rbg(hex_value: str) -> Tuple[int, int, int]:
 
 def degree_to_radian(degree: float) -> float:
     return degree * (math.pi / 180)
+
+
+def get_hovered_object(mouse_x: int, mouse_y: int) -> object:
+    for object in ASSETS:
+        if object.get_x() == mouse_x and object.get_y() == mouse_y:
+            return object

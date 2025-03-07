@@ -1,16 +1,8 @@
 import pygame
 import math
+from src.util import *
 from src.objects import Emitter_Directional, Emitter_Point, Emitter_Spot
-from src.variables import (
-    X_SIZE,
-    Y_SIZE,
-    RUNNING,
-    WHITE,
-    BLACK,
-    CIRCLES,
-    DRAGGING_CIRCLE,
-    CIRCLE_DEFAULT_RADIUS,
-)
+from src.variables import *
 
 if __name__ == "__main__":
     screen = pygame.display.set_mode((X_SIZE, Y_SIZE))
@@ -20,15 +12,40 @@ if __name__ == "__main__":
         mouse_x, mouse_y = pygame.mouse.get_pos()
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
+                # ADD: POINT EMITTER
                 if event.key == pygame.K_o:
                     CIRCLES.append(Emitter_Point(mouse_x, mouse_y))
 
+                # ADD: DIRECTIONAL EMITTER
                 elif event.key == pygame.K_d:
                     CIRCLES.append(
                         Emitter_Directional(mouse_x, mouse_y, math.pi / 4, None)
                     )
+
+                # ADD: SPOT EMITTER
                 elif event.key == pygame.K_s:
-                    CIRCLES.append(Emitter_Spot(mouse_x, mouse_y, 0, math.pi / 2))
+                    CIRCLES.append(
+                        Emitter_Spot(
+                            mouse_x, mouse_y, degree_to_radian(90), degree_to_radian(20)
+                        )
+                    )
+
+                # CHANGE: SPOT, DIRECTIONAL EMITTER ANGLE
+                elif event.key == pygame.K_COMMA or event.key == pygame.K_PERIOD:
+                    object = get_hovered_object(mouse_x, mouse_y)
+
+                    if (type(object) is Emitter_Directional) or (
+                        type(object) is Emitter_Spot
+                    ):
+                        if event.key == pygame.K_COMMA:
+                            object.set_angle(
+                                object.get_angle() - DEFAULT_ANGLE_INCREMENT
+                            )
+                        elif event.key == pygame.K_PERIOD:
+                            object.set_angle(
+                                object.get_angle() + DEFAULT_ANGLE_INCREMENT
+                            )
+                        object.initialize_rays()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
@@ -53,6 +70,9 @@ if __name__ == "__main__":
         # update the screen
         screen.fill(BLACK)
         for circle in CIRCLES:
+            if circle not in ASSETS:
+                ASSETS.append(circle)
+
             circle.draw(screen)
             for ray in circle.get_rays():
                 ray.draw(screen)
