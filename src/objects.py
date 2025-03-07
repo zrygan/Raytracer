@@ -27,11 +27,13 @@ class Circle:
         x: int,
         y: int,
         fill_color: Tuple[int, int, int],
+        penetrable: bool = None,
     ):
         self.radius = radius
         self.x = x
         self.y = y
         self.fill_color = fill_color if fill_color is not None else WHITE
+        self.get_penetrable = penetrable if penetrable is not None else False
 
     def draw(self, screen):
         # the circle function here is a pygame function
@@ -76,7 +78,6 @@ class Emitter_Point(Circle):
         x: int,
         y: int,
         radius: int = None,
-        penetrable: bool = None,
         emitter_color: Tuple[int, int, int] = None,
         fill_color: Tuple[int, int, int] = None,
     ):
@@ -85,14 +86,13 @@ class Emitter_Point(Circle):
         self.emitter_color = (
             emitter_color if emitter_color is not None else CORNFLOWER_BLUE
         )
-        self.penetrable = penetrable
 
         # Attributes of the super (Circle) class
-        self.fill_color = fill_color if fill_color is not None else WHITE
-        self.radius = radius if radius is not None else DEFAULT_CIRCLE_RADIUS
-        self.x = x
-        self.y = y
-        super().__init__(self.radius, self.x, self.y, self.fill_color)
+        fill_color = fill_color if fill_color is not None else WHITE
+        radius = radius if radius is not None else DEFAULT_CIRCLE_RADIUS
+        x = x
+        y = y
+        super().__init__(radius, x, y, fill_color)
 
         self.initialize_rays()
 
@@ -100,7 +100,9 @@ class Emitter_Point(Circle):
         for i in range(DEFAULT_RAY_COUNT):
             theta = (i * 2 * math.pi) / DEFAULT_RAY_COUNT
             theta_vector = (math.cos(theta), math.sin(theta))
-            self.rays.append(Ray(self.x, self.y, theta_vector, self.emitter_color))
+            self.rays.append(
+                Ray(self.x, self.y, theta_vector, self, color=self.emitter_color)
+            )
 
 
 class Emitter_Directional(Circle):
@@ -111,7 +113,6 @@ class Emitter_Directional(Circle):
         angle: float,
         width: float = None,
         radius: int = None,
-        penetrable: bool = None,
         emitter_color: Tuple[int, int, int] = None,
         fill_color: Tuple[int, int, int] = None,
     ):
@@ -126,13 +127,13 @@ class Emitter_Directional(Circle):
         self.emitter_color = (
             emitter_color if emitter_color is not None else CORNFLOWER_BLUE
         )
-        self.penetrable = penetrable
 
         # Attrbutes of the super (Circle) class
-        self.fill_color = fill_color if fill_color is not None else WHITE
-        self.x = x
-        self.y = y
-        super().__init__(self.radius, self.x, self.y, self.fill_color)
+        radius = radius if radius is not None else DEFAULT_CIRCLE_RADIUS
+        fill_color = fill_color if fill_color is not None else WHITE
+        x = x
+        y = y
+        super().__init__(radius, x, y, fill_color)
 
         self.initialize_rays(self.x, self.y)
 
@@ -163,7 +164,8 @@ class Emitter_Directional(Circle):
                     ray_position[0],
                     ray_position[1],
                     theta_vector,
-                    self.emitter_color,
+                    self,
+                    color=self.emitter_color,
                 )
             )
 
@@ -195,7 +197,6 @@ class Emitter_Spot(Circle):
         angle: float,
         arc: float,
         radius: int = None,
-        penetrable: bool = None,
         emitter_color: Tuple[int, int, int] = None,
         fill_color: Tuple[int, int, int] = None,
     ):
@@ -206,14 +207,13 @@ class Emitter_Spot(Circle):
         self.emitter_color = (
             emitter_color if emitter_color is not None else CORNFLOWER_BLUE
         )
-        self.penetrable = penetrable if penetrable is not None else False
 
         # Attributes of the super (Circle) class
-        self.fill_color = fill_color if fill_color is not None else WHITE
-        self.radius = radius if radius is not None else DEFAULT_CIRCLE_RADIUS
-        self.x = x
-        self.y = y
-        super().__init__(self.radius, self.x, self.y, self.fill_color)
+        fill_color = fill_color if fill_color is not None else WHITE
+        radius = radius if radius is not None else DEFAULT_CIRCLE_RADIUS
+        x = x
+        y = y
+        super().__init__(radius, x, y, fill_color)
 
         self.initialize_rays()
 
@@ -234,7 +234,8 @@ class Emitter_Spot(Circle):
                     ray_position[0],
                     ray_position[1],
                     theta_vector,
-                    self.emitter_color,
+                    self,
+                    color=self.emitter_color,
                 )
             )
 
@@ -251,7 +252,75 @@ class Emitter_Spot(Circle):
         self.arc = arc
 
 
-class Reflector(Circle):
+class Absorber_Circle(Circle):
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        radius: int = None,
+        fill_color: Tuple[int, int, int] = None,
+    ):
+        radius = radius if radius is not None else DEFAULT_CIRCLE_RADIUS
+        fill_color = fill_color if fill_color is not None else WHITE
+        super().__init__(radius, x, y, fill_color, penetrable=True)
+
+        self.absorb_light()
+
+    def absorbed_position(self, ray: Ray) -> Tuple[int, int]:
+        # determine the slope of the ray
+        x1 = ray.get_x_start()
+        x2 = ray.get_x_end()
+        y1 = ray.get_y_start()
+        y2 = ray.get_y_end()
+
+        vector = [x2 - x1, y2 - y1]
+
+        # Quadratic Coefficients
+        A = vector[0] ** 2 + vector[1] ** 2
+        B = 2 * (vector[0] * (x1 - self.get_x()) + vector[1] * (y1 - self.get_y()))
+        C = (x1 - self.get_x()) ** 2 + (y1 - self.get_y()) ** 2 - self.get_radius() ** 2
+
+        discriminant = B**2 - 4 * A * C
+
+        # check if the Quadratic has a solution
+        if discriminant < 0:
+            return (None, None)
+
+        # there must be two solutions
+        sqrt_discriminant = math.sqrt(discriminant)
+        solution_1 = (-B - sqrt_discriminant) / (2 * A)
+        solution_2 = (-B + sqrt_discriminant) / (2 * A)
+
+        # Initialize variables to None
+        absorbed_at_x, absorbed_at_y = None, None
+
+        # Check both solutions and choose the one within [0, 1]
+        if 0 <= solution_1 <= 1:
+            absorbed_at_x = x1 + solution_1 * vector[0]
+            absorbed_at_y = y1 + solution_1 * vector[1]
+        elif 0 <= solution_2 <= 1:
+            absorbed_at_x = x1 + solution_2 * vector[0]
+            absorbed_at_y = y1 + solution_2 * vector[1]
+
+        return (absorbed_at_x, absorbed_at_y)
+
+    def absorb_light(self):
+        for ray in RAYS:
+            absorbed_at = self.absorbed_position(ray)
+            if absorbed_at is not None:
+                ray.set_x(absorbed_at[0])
+                ray.set_y(absorbed_at[1])
+
+
+# TODO: this class and the Line class
+class Absorber_Line(
+    # Line
+):
+    def __init__(self):
+        pass
+
+
+class Reflector_Circle(Circle):
     def __init__():
         pass
 
@@ -264,28 +333,3 @@ class Refractor(Circle):
 class Diffractor(Circle):
     def __init__():
         pass
-
-
-def absorbed(ray: Ray, circle: Circle):
-    """
-    Check if a ray is absorbed by an absorber
-    """
-
-    f1 = (
-        circle.get_x()
-        + math.cos(ray.get_angle())
-        + circle.get_y() * math.sin(ray.get_angle())
-    )
-
-    # parametric equation of the circle
-    f2 = circle.get_radius**2 - circle.get_x() ** 2 - circle.get_y() ** 2
-
-    if f2 < 0:
-        return False  # the ray is not on circ(circle)
-
-    maxterm = max(f1, f2) if max(f1, f2) >= 0 else None
-
-    if maxterm is None:
-        return False
-
-    return (maxterm * math.cos(ray.get_angle()), maxterm * math.sin(ray.get_angle()))

@@ -1,7 +1,7 @@
 import pygame
 import math
 from src.util import *
-from src.objects import Emitter_Directional, Emitter_Point, Emitter_Spot
+from src.objects import *
 from src.variables import *
 
 if __name__ == "__main__":
@@ -18,9 +18,7 @@ if __name__ == "__main__":
 
                 # ADD: DIRECTIONAL EMITTER
                 elif event.key == pygame.K_d:
-                    CIRCLES.append(
-                        Emitter_Directional(mouse_x, mouse_y, math.pi / 4, None)
-                    )
+                    CIRCLES.append(Emitter_Directional(mouse_x, mouse_y, math.pi / 4))
 
                 # ADD: SPOT EMITTER
                 elif event.key == pygame.K_s:
@@ -29,6 +27,10 @@ if __name__ == "__main__":
                             mouse_x, mouse_y, degree_to_radian(90), degree_to_radian(20)
                         )
                     )
+
+                # ADD: CIRCLE ABSORBER
+                elif event.key == pygame.K_a:
+                    CIRCLES.append(Absorber_Circle(mouse_x, mouse_y))
 
                 # CHANGE: SPOT, DIRECTIONAL EMITTER ANGLE
                 elif event.key == pygame.K_COMMA or event.key == pygame.K_PERIOD:
@@ -69,11 +71,25 @@ if __name__ == "__main__":
 
         # update the screen
         screen.fill(BLACK)
+        EMMITERS = [
+            circle
+            for circle in CIRCLES
+            if isinstance(circle, (Emitter_Directional, Emitter_Point, Emitter_Spot))
+        ]
+
+        ABSORBERS = [
+            circle
+            for circle in CIRCLES
+            if isinstance(circle, (Absorber_Circle, Absorber_Circle))
+        ]
+
         for circle in CIRCLES:
             if circle not in ASSETS:
                 ASSETS.append(circle)
 
             circle.draw(screen)
-            for ray in circle.get_rays():
-                ray.draw(screen)
+
+            if circle in EMMITERS:
+                for ray in circle.get_rays():
+                    ray.draw(screen)
         pygame.display.update()
