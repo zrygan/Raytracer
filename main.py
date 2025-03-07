@@ -48,13 +48,25 @@ if __name__ == "__main__":
                     ):
                         if event.key == pygame.K_COMMA:
                             object.set_angle(
-                                object.get_angle() - DEFAULT_ANGLE_INCREMENT
+                                object.get_angle() + DEFAULT_ANGLE_INCREMENT
                             )
                         elif event.key == pygame.K_PERIOD:
                             object.set_angle(
-                                object.get_angle() + DEFAULT_ANGLE_INCREMENT
+                                object.get_angle() - DEFAULT_ANGLE_INCREMENT
                             )
                         object.initialize_rays()
+                        check_shadows()
+
+                elif event.key == pygame.K_BACKSPACE:
+                    object = get_hovered_object(mouse_x, mouse_y)
+
+                    if object:
+                        CIRCLES.remove(object)
+
+                        if object in EMMITERS:
+                            EMMITERS.remove(object)
+                        elif object in ABSORBERS:
+                            ABSORBERS.remove(object)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
@@ -89,6 +101,23 @@ if __name__ == "__main__":
                 for ray in circle.get_rays():
                     ray.draw(SCREEN)
 
-        check_shadows()
+        keys = pygame.key.get_pressed()
+        current_time = pygame.time.get_ticks()
+        last_change_time = 0
+
+        if (keys[pygame.K_COMMA] or keys[pygame.K_PERIOD]) and (
+            current_time - last_change_time >= DEFAULT_ANGLE_INCREMENT_DELAY
+        ):
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            object = get_hovered_object(mouse_x, mouse_y)
+
+            if (type(object) is Emitter_Directional) or (type(object) is Emitter_Spot):
+                if keys[pygame.K_COMMA]:
+                    object.set_angle(object.get_angle() - DEFAULT_ANGLE_INCREMENT)
+                elif keys[pygame.K_PERIOD]:
+                    object.set_angle(object.get_angle() + DEFAULT_ANGLE_INCREMENT)
+                object.initialize_rays()
+                check_shadows()
+                last_change_time = current_time
 
         pygame.display.update()

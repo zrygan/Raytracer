@@ -46,5 +46,8 @@ def degree_to_radian(degree: float) -> float:
 
 def get_hovered_object(mouse_x: int, mouse_y: int) -> object:
     for object in ASSETS:
-        if object.get_x() == mouse_x and object.get_y() == mouse_y:
+        delta_x = mouse_x - object.get_x()
+        delta_y = mouse_y - object.get_y()
+        if delta_x**2 + delta_y**2 <= object.get_radius() ** 2:
             return object
+    return None
