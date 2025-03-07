@@ -1,6 +1,6 @@
 import pygame
 import math
-from src.circle import Circle
+from src.objects import Emitter_Directional, Emitter_Point, Emitter_Spot
 from src.variables import (
     X_SIZE,
     Y_SIZE,
@@ -21,42 +21,14 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_o:
-                    circle = Circle(
-                        CIRCLE_DEFAULT_RADIUS,
-                        mouse_x,
-                        mouse_y,
-                        "EMITTER",
-                        WHITE,
-                        emitter_type="POINT",
-                        emit_color=None,
-                    )
-                    CIRCLES.append(circle)
+                    CIRCLES.append(Emitter_Point(mouse_x, mouse_y))
 
                 elif event.key == pygame.K_d:
-                    circle = Circle(
-                        CIRCLE_DEFAULT_RADIUS,
-                        mouse_x,
-                        mouse_y,
-                        "EMITTER",
-                        WHITE,
-                        emitter_type="DIRECTIONAL",
-                        emit_color=None,
-                        directional_angle=math.pi / 4,
-                        directional_width=None,
+                    CIRCLES.append(
+                        Emitter_Directional(mouse_x, mouse_y, math.pi / 4, None)
                     )
-                    CIRCLES.append(circle)
                 elif event.key == pygame.K_s:
-                    circle = Circle(
-                        CIRCLE_DEFAULT_RADIUS,
-                        mouse_x,
-                        mouse_y,
-                        "EMITTER",
-                        WHITE,
-                        emitter_type="SPOT",
-                        spot_angle=0,
-                        spot_arc=math.pi / 2,
-                    )
-                    CIRCLES.append(circle)
+                    CIRCLES.append(Emitter_Spot(mouse_x, mouse_y, 0, math.pi / 2))
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
