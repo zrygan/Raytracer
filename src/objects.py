@@ -11,6 +11,7 @@ from src.variables import (
     DIRECTIONAL_ANGLE_OFFSET,
 )
 from src.rays import Ray
+from src.shadowing import *
 
 
 class Circle:
@@ -33,7 +34,10 @@ class Circle:
         self.x = x
         self.y = y
         self.fill_color = fill_color if fill_color is not None else WHITE
-        self.get_penetrable = penetrable if penetrable is not None else False
+        self.penetrable = penetrable if penetrable is not None else False
+
+        if self.penetrable:
+            check_for_shadows(self)
 
     def draw(self, screen):
         # the circle function here is a pygame function
@@ -43,9 +47,6 @@ class Circle:
     def move(self, x, y):
         self.x = x
         self.y = y
-        for ray in self.rays:
-            ray.change_x(x)
-            ray.change_y(y)
 
     def change_color(self, fill_color):
         self.fill_color = fill_color
@@ -103,6 +104,13 @@ class Emitter_Point(Circle):
             self.rays.append(
                 Ray(self.x, self.y, theta_vector, self, color=self.emitter_color)
             )
+
+    def move(self, x, y):
+        self.x = x
+        self.y = y
+        for ray in self.rays:
+            ray.change_x(x)
+            ray.change_y(y)
 
 
 class Emitter_Directional(Circle):
@@ -239,6 +247,13 @@ class Emitter_Spot(Circle):
                 )
             )
 
+    def move(self, x, y):
+        self.x = x
+        self.y = y
+        for ray in self.rays:
+            ray.change_x(x)
+            ray.change_y(y)
+
     def get_angle(self):
         return self.angle
 
@@ -263,53 +278,6 @@ class Absorber_Circle(Circle):
         radius = radius if radius is not None else DEFAULT_CIRCLE_RADIUS
         fill_color = fill_color if fill_color is not None else WHITE
         super().__init__(radius, x, y, fill_color, penetrable=True)
-
-        self.absorb_light()
-
-    def absorbed_position(self, ray: Ray) -> Tuple[int, int]:
-        # determine the slope of the ray
-        x1 = ray.get_x_start()
-        x2 = ray.get_x_end()
-        y1 = ray.get_y_start()
-        y2 = ray.get_y_end()
-
-        vector = [x2 - x1, y2 - y1]
-
-        # Quadratic Coefficients
-        A = vector[0] ** 2 + vector[1] ** 2
-        B = 2 * (vector[0] * (x1 - self.get_x()) + vector[1] * (y1 - self.get_y()))
-        C = (x1 - self.get_x()) ** 2 + (y1 - self.get_y()) ** 2 - self.get_radius() ** 2
-
-        discriminant = B**2 - 4 * A * C
-
-        # check if the Quadratic has a solution
-        if discriminant < 0:
-            return (None, None)
-
-        # there must be two solutions
-        sqrt_discriminant = math.sqrt(discriminant)
-        solution_1 = (-B - sqrt_discriminant) / (2 * A)
-        solution_2 = (-B + sqrt_discriminant) / (2 * A)
-
-        # Initialize variables to None
-        absorbed_at_x, absorbed_at_y = None, None
-
-        # Check both solutions and choose the one within [0, 1]
-        if 0 <= solution_1 <= 1:
-            absorbed_at_x = x1 + solution_1 * vector[0]
-            absorbed_at_y = y1 + solution_1 * vector[1]
-        elif 0 <= solution_2 <= 1:
-            absorbed_at_x = x1 + solution_2 * vector[0]
-            absorbed_at_y = y1 + solution_2 * vector[1]
-
-        return (absorbed_at_x, absorbed_at_y)
-
-    def absorb_light(self):
-        for ray in RAYS:
-            absorbed_at = self.absorbed_position(ray)
-            if absorbed_at is not None:
-                ray.set_x(absorbed_at[0])
-                ray.set_y(absorbed_at[1])
 
 
 # TODO: this class and the Line class
