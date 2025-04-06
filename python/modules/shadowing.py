@@ -1,6 +1,6 @@
 import math
-from src.variables import *
-from src.rays import *
+from modules.variables import *
+from modules.rays import *
 
 
 def shadow(x: int, y: int, r: int, ray: Ray) -> Tuple[int, int]:

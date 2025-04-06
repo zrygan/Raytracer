@@ -1,7 +1,7 @@
 import pygame
 from typing import Tuple
-from src.variables import *
-from src.variables import WHITE
+from modules.variables import *
+from modules.variables import WHITE
 
 
 class Ray:
