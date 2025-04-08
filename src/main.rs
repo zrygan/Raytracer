@@ -1,11 +1,18 @@
+use macroquad::prelude::*;
 
-fn main() { 
-    println!("{}", my_func(None))
-}
+mod objects;
+use objects::{circle::ObjectCircle, object_traits::Drawable};
 
-fn my_func(x: Option<i32>) -> i64 {
-    match x {
-        Some(value) => (value as i64) * 2, 
-        None => 99999 as i64,
+#[macroquad::main("Raytracer [release: rust-rewrite]")]
+async fn main(){
+    loop {
+        clear_background(BLACK);
+        // Uses macroquad draw circle
+        draw_circle(screen_height()/20.0, screen_height()/20.0, 10.0, RED);
+        
+        // using raytracer draw circle
+        let new_circle = ObjectCircle::new(10.0, 10.0, Color { r: 0.5, g: 0.5, b: 0.5, a: 0.5 }, 10.0);
+        new_circle.draw_object();
+        next_frame().await;
     }
 }
