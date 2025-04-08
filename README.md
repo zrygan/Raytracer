@@ -2,7 +2,12 @@
 
 By: Zhean Ganituen (zrygan). <br>
 Started: February 2025 <br>
-Last updated: March 2025 <br>
+Last updated: April 2025 <br>
+
+>❗**Notice** <br> <br>
+> This project is currently being rewritten from Python to Rust using [Macroquad](https://macroquad.rs/). <br>
+> The Python version is unmaintained as of April 2025 (however, working properly). <br>
+> The Rust version is in progress (see the [Rust Rewrite tree](https://github.com/zrygan/Raytracer/tree/rust-rewrite/src). <br.
 
 ## About
 
