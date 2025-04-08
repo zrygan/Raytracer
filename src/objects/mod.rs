@@ -1,2 +1,2 @@
-pub mod object_traits;
+pub mod behavior;
 pub mod circle;

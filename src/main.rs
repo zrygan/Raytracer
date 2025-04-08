@@ -1,18 +1,33 @@
-use macroquad::prelude::*;
-
+mod globals;
 mod objects;
-use objects::{circle::ObjectCircle, object_traits::Drawable};
+mod user_input;
 
-#[macroquad::main("Raytracer [release: rust-rewrite]")]
-async fn main(){
+use globals::*;
+use macroquad::prelude::*;
+use user_input::actions::add_object_to_scene;
+
+fn window_conf() -> Conf {
+    Conf {
+        window_width: WINDOW_WIDTH,
+        window_height: WINDOW_HEIGHT,
+        window_title: format!("{} [{}]", APP_NAME, APP_VERSION),
+        high_dpi: MACROQUAD_HIGH_DPI,
+        fullscreen: MACROQUAD_FULLSCREEN,
+        sample_count: MACROQUAD_SAMPLE_COUNT,
+        window_resizable: MACROQUAD_RESIZEABLE,
+        ..Default::default()
+    }
+}
+
+#[macroquad::main(window_conf)]
+async fn main() {
     loop {
-        clear_background(BLACK);
-        // Uses macroquad draw circle
-        draw_circle(screen_height()/20.0, screen_height()/20.0, 10.0, RED);
-        
-        // using raytracer draw circle
-        let new_circle = ObjectCircle::new(10.0, 10.0, Color { r: 0.5, g: 0.5, b: 0.5, a: 0.5 }, 10.0);
-        new_circle.draw_object();
+        clear_background(WINDOW_BG_COLOR);
+
+        if is_key_pressed(KEYB_SIMPLE_CIRCLE) {
+            add_object_to_scene("circle_none");
+        }
+
         next_frame().await;
     }
 }

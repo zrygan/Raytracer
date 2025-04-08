@@ -1,7 +1,5 @@
-use crate::objects::object_traits::Drawable;
+use super::behavior::{Drawable, Movable};
 use macroquad::prelude::*;
-
-use super::object_traits::Movable;
 
 /// Structure for a circle general object
 pub struct ObjectCircle {
@@ -9,18 +7,17 @@ pub struct ObjectCircle {
     pos_y: f32,
     color_fill: Color,
     radius: f32,
-
 }
 
 impl ObjectCircle {
     pub fn new(pos_x: f32, pos_y: f32, color_fill: Color, radius: f32) -> ObjectCircle {
-        let new_circle: ObjectCircle = ObjectCircle { 
+        let new_circle: ObjectCircle = ObjectCircle {
             pos_x,
             pos_y,
-            color_fill, 
+            color_fill,
             radius,
         };
-        
+
         new_circle.draw_object();
 
         new_circle
@@ -29,13 +26,13 @@ impl ObjectCircle {
 
 /// Drawable Implementation for a Circle
 impl Drawable for ObjectCircle {
-    fn draw_object(&self){
+    fn draw_object(&self) {
         draw_circle(self.pos_x, self.pos_y, self.radius, self.color_fill);
     }
 }
 
 /// Movable Implementation for a Circle
-impl Movable for ObjectCircle{
+impl Movable for ObjectCircle {
     fn move_object(&mut self, pos_x: f32, pos_y: f32) {
         self.pos_x = pos_x;
         self.pos_y = pos_y;
@@ -44,4 +41,3 @@ impl Movable for ObjectCircle{
         self.draw_object();
     }
 }
-
