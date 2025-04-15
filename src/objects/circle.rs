@@ -1,7 +1,9 @@
-use super::behavior::{Drawable, Movable};
+use super::behavior::{Drawable, Movable, RaytracerObjects};
+use crate::globals::OBJC_COLLECTION;
 use macroquad::prelude::*;
 
 /// Structure for a circle general object
+#[derive(Clone)]
 pub struct ObjectCircle {
     pos_x: f32,
     pos_y: f32,
@@ -18,8 +20,9 @@ impl ObjectCircle {
             radius,
         };
 
-        new_circle.draw_object();
-
+        // we don't draw the object here since we do it in the main loop
+        OBJC_COLLECTION.lock().unwrap().push(RaytracerObjects::ObjectCircle(new_circle.clone()));
+        
         new_circle
     }
 }
