@@ -1,6 +1,8 @@
 //! Contains all global variables for the Raytracer project
+use std::sync::Mutex;
 use crate::objects::behavior::RaytracerObjects;
-use macroquad::input::KeyCode::{self, S};
+use once_cell::sync::Lazy;
+use macroquad::input::KeyCode::{self};
 use macroquad::prelude::Color;
 
 /// App Information (starts with the APP_ prefix)
@@ -25,7 +27,9 @@ pub const MACROQUAD_SAMPLE_COUNT: i32 = 0; // MSAA sample count
 pub const MACROQUAD_RESIZEABLE: bool = false;
 
 /// Raytracer Object Constants (starts with the OBJC_ prefix)
-pub static mut OBJC_COLLECTION: Vec<RaytracerObjects> = Vec::new();
+pub static OBJC_COLLECTION: Lazy<Mutex<Vec<RaytracerObjects>>> = Lazy::new(||{
+    Mutex::new(Vec::new())
+});
 pub const OBJC_MAX_OBJ_COUNT: i32 = 100;
 pub const OBJC_MAX_RAY_COUNT: i32 = 25;
 
