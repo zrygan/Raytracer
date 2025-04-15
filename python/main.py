@@ -1,7 +1,7 @@
-from src.util import *
-from src.objects import *
-from src.variables import *
-from src.shadowing import *
+from modules.util import *
+from modules.objects import *
+from modules.variables import *
+from modules.shadowing import *
 
 if __name__ == "__main__":
     pygame.init()

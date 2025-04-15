@@ -1,9 +1,9 @@
 import pygame, math, numpy as np
 from typing import Tuple
-from src.util import *
-from src.variables import *
-from src.rays import Ray
-from src.shadowing import *
+from modules.util import *
+from modules.variables import *
+from modules.rays import Ray
+from modules.shadowing import *
 
 
 class Circle:
