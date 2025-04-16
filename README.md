@@ -2,7 +2,12 @@
 
 By: Zhean Ganituen (zrygan). <br>
 Started: February 2025 <br>
-Last updated: March 2025 <br>
+Last updated: April 2025 <br>
+
+>❗**Notice** <br> <br>
+> This project is currently being rewritten from Python to Rust using [Macroquad](https://macroquad.rs/). <br>
+> The Python version is unmaintained as of April 2025 (however, working properly). <br>
+> The Rust version is in progress (see the [Rust Rewrite tree](https://github.com/zrygan/Raytracer/tree/rust-rewrite/src). <br.
 
 ## About
 
@@ -20,7 +25,7 @@ $ pip install -r requirements.txt
 
 ## Features
 * Light Emitters:
-    * Point Light
+    * emitter point
     * Directional Light
     * Spot Light
 * Absorbers and Shadowing
@@ -40,7 +45,7 @@ python main.py
 ```
 
 Then, a Pygame window will appear and you may use the following commands:
-1. `o` : creates a point light emittor at cursor position.
+1. `o` : creates a emitter point emittor at cursor position.
 2. `d` : creates a directional emittor at cursor position.
 3. `s` : creates a spot light emittor at cursor position.
 4. `a` : creates a circle light absorber at the cursor position.

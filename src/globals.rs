@@ -1,7 +1,10 @@
 //! Contains all global variables for the Raytracer project
+
 use crate::objects::behavior::RaytracerObjects;
-use macroquad::input::KeyCode::{self, S};
+use macroquad::input::KeyCode::{self};
 use macroquad::prelude::Color;
+use once_cell::sync::Lazy;
+use std::sync::Mutex;
 
 /// App Information (starts with the APP_ prefix)
 pub const APP_NAME: &str = "Raytracer";
@@ -24,14 +27,20 @@ pub const MACROQUAD_FULLSCREEN: bool = false;
 pub const MACROQUAD_SAMPLE_COUNT: i32 = 0; // MSAA sample count
 pub const MACROQUAD_RESIZEABLE: bool = false;
 
+/// Raytracer Object Collection
+pub static OBJ_COLLECTION: Lazy<Mutex<Vec<RaytracerObjects>>> =
+    Lazy::new(|| Mutex::new(Vec::new()));
+
 /// Raytracer Object Constants (starts with the OBJC_ prefix)
-pub static mut OBJC_COLLECTION: Vec<RaytracerObjects> = Vec::new();
 pub const OBJC_MAX_OBJ_COUNT: i32 = 100;
 pub const OBJC_MAX_RAY_COUNT: i32 = 25;
 
 /// Raytracer Default Object Parameters (starts with OBJD_ prefix)
 pub const OBJD_CIRCLE_RADIUS: f32 = 50.0;
 pub const OBJD_CIRCLE_FILL: Color = CORNFLOWER_BLUE;
+pub const OBJD_RAY_WIDTH: f32 = 2.5;
+pub const OBJD_RAY_COLOR: Color = CORNFLOWER_BLUE;
 
 /// Raytracer Keybinds (starts with KEYB_ prefix)
 pub const KEYB_SIMPLE_CIRCLE: KeyCode = KeyCode::S;
+pub const KEYB_EMITTER_POINT: KeyCode = KeyCode::P;

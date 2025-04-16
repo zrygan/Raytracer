@@ -1,12 +1,19 @@
-use super::behavior::{Drawable, Movable};
+//! Circle object initialization and the behaviors
+//! Used in other RaytracerObjects 
+
+use super::behavior::{Drawable, Movable, RaytracerObjects};
+use crate::globals::*;
+
 use macroquad::prelude::*;
 
 /// Structure for a circle general object
+#[derive(Clone)]
 pub struct ObjectCircle {
-    pos_x: f32,
-    pos_y: f32,
-    color_fill: Color,
-    radius: f32,
+    pub pos_x: f32,
+    pub pos_y: f32,
+
+    pub color_fill: Color,
+    pub radius: f32,
 }
 
 impl ObjectCircle {
@@ -18,8 +25,11 @@ impl ObjectCircle {
             radius,
         };
 
-        new_circle.draw_object();
-
+        OBJ_COLLECTION
+            .lock()
+            .unwrap()
+            .push(RaytracerObjects::ObjectCircle(new_circle.clone()));
+        
         new_circle
     }
 }
@@ -38,6 +48,7 @@ impl Movable for ObjectCircle {
         self.pos_y = pos_y;
 
         // Might cause an error if an object without the Drawable trait moves
+        // TODO: @zrygan
         self.draw_object();
     }
 }
