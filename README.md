@@ -25,7 +25,7 @@ $ pip install -r requirements.txt
 
 ## Features
 * Light Emitters:
-    * Point Light
+    * emitter point
     * Directional Light
     * Spot Light
 * Absorbers and Shadowing
@@ -45,7 +45,7 @@ python main.py
 ```
 
 Then, a Pygame window will appear and you may use the following commands:
-1. `o` : creates a point light emittor at cursor position.
+1. `o` : creates a emitter point emittor at cursor position.
 2. `d` : creates a directional emittor at cursor position.
 3. `s` : creates a spot light emittor at cursor position.
 4. `a` : creates a circle light absorber at the cursor position.
