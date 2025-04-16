@@ -1,8 +1,10 @@
 //! Ray object initializatin and behaviors
 
+use std::f32::consts::PI;
+
 use crate::globals::{OBJC_MAX_RAY_COUNT, OBJD_RAY_COLOR, OBJD_RAY_WIDTH};
 
-use macroquad::color::Color;
+use macroquad::{color::Color, window::{screen_height, screen_width}};
 
 #[derive(Clone)]
 pub struct ObjectRay {
@@ -40,14 +42,14 @@ impl ObjectRay {
 pub fn init_rays_for_point(start_x: f32, start_y: f32) -> Vec<ObjectRay> {
     let mut rays: Vec<ObjectRay> = Vec::with_capacity(OBJC_MAX_RAY_COUNT as usize);
 
-    for index in 0..OBJC_MAX_RAY_COUNT - 1 {
-        let angle = (index * 360) as f32 / OBJC_MAX_RAY_COUNT as f32;
+    for index in 0..OBJC_MAX_RAY_COUNT {
+        let angle = (index as f32 / OBJC_MAX_RAY_COUNT as f32) * 2.0 * PI;
 
         rays.push(ObjectRay {
             start_x,
             start_y,
-            end_x: angle.cos(),
-            end_y: angle.sin(),
+            end_x: start_x + angle.cos() * screen_width(),
+            end_y: start_y + angle.sin() * screen_height(),
             thickness: OBJD_RAY_WIDTH,
             color: OBJD_RAY_COLOR,
         });
