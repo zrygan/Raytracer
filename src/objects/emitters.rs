@@ -146,6 +146,14 @@ impl Emitter {
 ///
 /// This emitter produces rays that travel in parallel, similar to a laser beam
 /// in real-world physics. It has an orientation and beam diameter.
+///
+/// Represents a spotlight emitter.
+///
+/// This emitter produces rays within a specific angular range, defined by the
+/// `spotlight_beam_angle`. The rays are distributed within this angle, centered
+/// around the `orientation` angle, creating a cone-like light effect.
+/// This emitter produces rays that travel in parallel, similar to a laser beam
+/// in real-world physics. It has an orientation and beam diameter.
 #[derive(Clone)]
 pub struct EmitterCollimated {
     /// The underlying emitter providing basic functionality
@@ -172,6 +180,23 @@ impl EmitterCollimated {
     /// # Returns
     ///
     /// A new `EmitterCollimated` instance with the specified parameters
+    /// Creates a new spotlight emitter with the specified properties.
+    ///
+    /// Adds the newly created emitter to the global object collection
+    /// for tracking in the raytracer system.
+    ///
+    /// # Arguments
+    ///
+    /// * `base_object` - The physical properties of the emitter
+    /// * `rays` - Collection of rays to be emitted from this source
+    /// * `orientation` - The central angle (in radians) at which the spotlight is directed
+    /// * `spotlight_beam_angle` - The angular range (in radians) within which rays are emitted,
+    ///   forming a cone of light. A smaller angle creates a narrower beam, while a larger angle
+    ///   creates a wider beam.
+    ///
+    /// # Returns
+    ///
+    /// A new `EmitterSpotlight` instance with the specified parameters
     pub fn new(
         base_object: ObjectCircle,
         rays: Vec<ObjectRay>,

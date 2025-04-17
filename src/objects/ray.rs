@@ -187,7 +187,7 @@ pub fn init_spotlight_rays(
             start_x: start_x,
             start_y: start_y,
             end_x: start_x + screen_width() * angle.cos(),
-            end_y: start_y + screen_height() * -1.0 * angle.sin(),
+            end_y: start_y + screen_height() * (-1.0 * angle.sin()),
             thickness: OBJD_RAY_WIDTH,
             color: OBJD_RAY_COLOR,
         });
