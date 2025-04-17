@@ -1,3 +1,12 @@
+//! Raytracer - Interactive 2D ray tracing simulation
+//!
+//! This is the main module of the Raytracer application, which handles window 
+//! configuration, the main event loop, user input processing, and rendering.
+//! It serves as the entry point and orchestrator for the entire application.
+//! 
+//! author:         Zhean Ganituen (zrygan)
+//! last updated:   April 16, 2025
+
 mod globals;
 mod objects;
 mod user_input;
@@ -7,6 +16,15 @@ use macroquad::prelude::*;
 use user_input::actions::add_object_to_scene;
 use objects::behavior::*;
 
+/// Configures the application window settings.
+///
+/// This function defines all window properties including dimensions, title,
+/// and rendering options. It uses constants from the globals module to ensure
+/// consistent configuration throughout the application.
+///
+/// # Returns
+///
+/// A `Conf` struct with all window configuration parameters set
 fn window_conf() -> Conf {
     Conf {
         window_width: WINDOW_WIDTH,
@@ -20,12 +38,24 @@ fn window_conf() -> Conf {
     }
 }
 
+/// Main entry point for the Raytracer application.
+///
+/// This async function initializes the application window and runs the main event loop.
+/// The loop handles:
+/// 1. Clearing the background for each frame
+/// 2. Processing user input for object creation 
+/// 3. Drawing all objects in the scene
+/// 4. Advancing to the next frame
+///
+/// The function is marked as the application entry point using the `#[macroquad::main]`
+/// attribute, which initializes the Macroquad rendering environment.
 #[macroquad::main(window_conf)]
 async fn main() {
     loop {
+        // Clear the screen with the background color
         clear_background(WINDOW_BG_COLOR);
 
-        // User input handling
+        // Handle user input for object creation
         if is_key_pressed(KEYB_SIMPLE_CIRCLE) {
             println!("Simple circle created at {}, {}", mouse_position().0, mouse_position().1);
             add_object_to_scene("circle_none");
@@ -37,7 +67,7 @@ async fn main() {
             add_object_to_scene("emitter_collimated");
         }
 
-        // Draw Raytracer Objects
+        // Draw all objects in the global collection
         for r_obj in OBJ_COLLECTION.lock().unwrap().iter(){
             match r_obj {
                 RaytracerObjects::ObjectCircle(o) => {
@@ -52,6 +82,7 @@ async fn main() {
             }
         }
 
+        // Wait for the next frame
         next_frame().await;
     }
 }
