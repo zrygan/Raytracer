@@ -62,6 +62,8 @@ There is no need to install these dependencies one-by-one since running the proj
 
 ### Web Documentation
 
+> Webpage removed, might re-add at a later time.
+
 You may go to the [`docs/`](https://github.com/zrygan/Raytracer/tree/rust-rewrite/docs) directory in the repository.
 
 Alternatively (the easy way), you may visit the [Github pages](https://zrygan.github.io/Raytracer/) of this repository.
@@ -85,5 +87,5 @@ $ cd Raytracer
 3. Create the `rustdoc`.
 
 ```bash
-$ cargo doc --no-deps --target-dir docs
+$ cargo doc --no-deps # --no-deps removes documentation for Raytracer's dependencies, remove this add needed.
 ```
