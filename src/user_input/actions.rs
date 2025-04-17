@@ -4,12 +4,11 @@
 //! and manipulating objects in the raytracer scene.
 //!
 //! author:         Zhean Ganituen (zrygan)
-//! last updated:   April 16, 2025
+//! last updated:   April 17, 2025
 
 use crate::globals::{
     OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS, OBJD_COLLIMATED_BEAM_DIAMETER,
-    OBJD_COLLIMATED_ORIENTATION, OBJD_RAY_WIDTH, OBJD_SPOTLIGHT_BEAM_ANGLE,
-    OBJD_SPOTLIGHT_ORIENTATION,
+    OBJD_COLLIMATED_ORIENTATION, OBJD_SPOTLIGHT_BEAM_ANGLE, OBJD_SPOTLIGHT_ORIENTATION,
 };
 use crate::objects::circle::ObjectCircle;
 use crate::objects::emitters::{Emitter, EmitterCollimated, EmitterSpotlight};

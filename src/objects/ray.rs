@@ -5,15 +5,17 @@
 //! different ray patterns.
 //!
 //! author:         Zhean Ganituen (zrygan)
-//! last updated:   April 16, 2025
+//! last updated:   April 17, 2025
 
 use std::f32::consts::PI;
 
+use super::behavior::Drawable;
 use super::utils::linspace;
 use crate::globals::{OBJC_MAX_RAY_COUNT, OBJD_RAY_COLOR, OBJD_RAY_WIDTH};
 
 use macroquad::{
     color::Color,
+    shapes::draw_line,
     window::{screen_height, screen_width},
 };
 
@@ -24,17 +26,17 @@ use macroquad::{
 #[derive(Clone)]
 pub struct ObjectRay {
     /// X coordinate of the ray's starting point
-    pub start_x: f32,
+    start_x: f32,
     /// Y coordinate of the ray's starting point
-    pub start_y: f32,
+    start_y: f32,
     /// X coordinate of the ray's ending point
-    pub end_x: f32,
+    end_x: f32,
     /// Y coordinate of the ray's ending point
-    pub end_y: f32,
+    end_y: f32,
     /// Visual thickness of the ray when drawn
-    pub thickness: f32,
+    thickness: f32,
     /// Color of the ray when drawn
-    pub color: Color,
+    color: Color,
 }
 
 impl ObjectRay {
@@ -62,17 +64,28 @@ impl ObjectRay {
         end_y: f32,
         thickness: f32,
         color: Color,
-    ) -> ObjectRay {
-        let ray: ObjectRay = ObjectRay {
+    ) -> Self {
+        Self {
             start_x,
             start_y,
             end_x,
             end_y,
             thickness,
             color,
-        };
+        }
+    }
+}
 
-        ray
+impl Drawable for ObjectRay {
+    fn draw_object(&self) {
+        draw_line(
+            self.start_x,
+            self.start_y,
+            self.end_x,
+            self.end_y,
+            self.thickness,
+            self.color,
+        );
     }
 }
 
@@ -96,14 +109,14 @@ pub fn init_isotropic_rays(start_x: f32, start_y: f32) -> Vec<ObjectRay> {
         // Calculate angle for each ray to distribute them evenly in a circle
         let angle = (index as f32 / OBJC_MAX_RAY_COUNT as f32) * 2.0 * PI;
 
-        rays.push(ObjectRay {
+        rays.push(ObjectRay::new(
             start_x,
             start_y,
-            end_x: start_x + angle.cos() * screen_width(),
-            end_y: start_y + angle.sin() * screen_height(),
-            thickness: OBJD_RAY_WIDTH,
-            color: OBJD_RAY_COLOR,
-        });
+            start_x + angle.cos() * screen_width(),
+            start_y + angle.sin() * screen_height(),
+            OBJD_RAY_WIDTH,
+            OBJD_RAY_COLOR,
+        ));
     }
 
     rays
@@ -150,16 +163,16 @@ pub fn init_collimated_rays(
         let offset_x = offset * perp.0;
         let offset_y = offset * perp.1;
 
-        rays.push(ObjectRay {
+        rays.push(ObjectRay::new(
             // Apply offset to create parallel rays
-            start_x: start_x + offset_x,
-            start_y: start_y + offset_y,
+            start_x + offset_x,
+            start_y + offset_y,
             // Extend ray to screen edge in the direction of orientation
-            end_x: start_x + offset_x + cos_x * screen_width(),
-            end_y: start_y + offset_y + sin_y * screen_height(),
-            thickness: OBJD_RAY_WIDTH,
-            color: OBJD_RAY_COLOR,
-        });
+            start_x + offset_x + cos_x * screen_width(),
+            start_y + offset_y + sin_y * screen_height(),
+            OBJD_RAY_WIDTH,
+            OBJD_RAY_COLOR,
+        ));
     }
 
     rays
@@ -183,14 +196,14 @@ pub fn init_spotlight_rays(
     .expect("Number of rays for spotlight must be at least 2.");
 
     for angle in angles {
-        rays.push(ObjectRay {
-            start_x: start_x,
-            start_y: start_y,
-            end_x: start_x + screen_width() * angle.cos(),
-            end_y: start_y + screen_height() * (-1.0 * angle.sin()),
-            thickness: OBJD_RAY_WIDTH,
-            color: OBJD_RAY_COLOR,
-        });
+        rays.push(ObjectRay::new(
+            start_x,
+            start_y,
+            start_x + screen_width() * angle.cos(),
+            start_y + screen_height() * (-1.0 * angle.sin()),
+            OBJD_RAY_WIDTH,
+            OBJD_RAY_COLOR,
+        ));
     }
 
     rays

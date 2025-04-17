@@ -1,13 +1,13 @@
 //! Emitter objects initialization and behaviors
 //!
 //! This module provides light emitter implementations for the raytracer system.
-//! It defines two types of emitters: isotropic (radiating in all directions)
-//! and collimated (parallel rays, like a laser).
+//! It defines three types of emitters: isotropic (radiating in all directions),
+//! collimated (parallel rays, like a laser), and spotlight (cone-shaped beam).
 //!
-//! author:         Zhean Ganituen (zrygan)
-//! last updated:   April 16, 2025
+//! author:         Zhean Ganituen
+//! last updated:   April 17, 2025
 
-use macroquad::shapes::{draw_circle, draw_line};
+use macroquad::shapes::draw_circle;
 
 use super::behavior::{Drawable, Movable, RaytracerObjects};
 use super::circle::ObjectCircle;
@@ -21,8 +21,10 @@ use crate::OBJ_COLLECTION;
 pub enum Emitters {
     /// Standard isotropic emitter that radiates light in all directions
     Emitter(Emitter),
-    /// Directional emitter that produces parallel light rays
+    /// Directional emitter that produces parallel rays
     EmitterCollimated(EmitterCollimated),
+    /// Spotlight emitter that produces a cone-shaped beam
+    EmitterSpotlight(EmitterSpotlight),
 }
 
 impl Drawable for Emitters {
@@ -33,6 +35,7 @@ impl Drawable for Emitters {
         match self {
             Emitters::Emitter(e) => e.draw_object(),
             Emitters::EmitterCollimated(e) => e.base_emitter.draw_object(),
+            Emitters::EmitterSpotlight(e) => e.base_emitter.draw_object(),
         }
     }
 }
@@ -46,57 +49,12 @@ impl Movable for Emitters {
     ///
     /// * `pos_x` - The new x-coordinate position
     /// * `pos_y` - The new y-coordinate position
-    // #[warn(unused_variables)]
     fn move_object(&mut self, pos_x: f32, pos_y: f32) {
         match self {
             Emitters::Emitter(e) => e.move_object(pos_x, pos_y),
             Emitters::EmitterCollimated(e) => e.base_emitter.move_object(pos_x, pos_y),
+            Emitters::EmitterSpotlight(e) => e.base_emitter.move_object(pos_x, pos_y),
         }
-    }
-}
-
-impl Drawable for Emitter {
-    /// Draws the isotropic emitter (or the base emitter) and its rays on the
-    /// screen.
-    ///
-    /// Renders the emitter as a colored circle and draws all of its
-    /// associated light rays emanating from it.
-    fn draw_object(&self) {
-        // Draw the emitter's physical representation (a circle)
-        draw_circle(
-            self.base_object.pos_x,
-            self.base_object.pos_y,
-            self.base_object.radius,
-            self.base_object.color_fill,
-        );
-
-        // Draw all the light rays associated with this emitter
-        for ray in self.rays.clone() {
-            draw_line(
-                ray.start_x,
-                ray.start_y,
-                ray.end_x,
-                ray.end_y,
-                ray.thickness,
-                ray.color,
-            );
-        }
-    }
-}
-
-impl Movable for Emitter {
-    /// Moves the emitter to a new position.
-    ///
-    /// TODO: Currently only logs the new position; implementation for actually
-    /// moving the emitter and updating its rays would need to be added.
-    ///
-    /// # Arguments
-    ///
-    /// * `pos_x` - The new x-coordinate position
-    /// * `pos_y` - The new y-coordinate position
-    // #[warn(unused_variables)]
-    fn move_object(&mut self, pos_x: f32, pos_y: f32) {
-        println!("{}, {}", pos_x, pos_y)
     }
 }
 
@@ -126,32 +84,58 @@ impl Emitter {
     /// # Returns
     ///
     /// A new `Emitter` instance with the specified parameters
-    pub fn new(base_object: ObjectCircle, rays: Vec<ObjectRay>) -> Emitter {
-        // if rays.len() > OBJC_MAX_RAY_COUNT as usize {
-        //     panic!("Raytracer: Emitter has too many rays. See OBJC_MAX_RAY_COUNT in globals.")
-        // }
-
-        let new_emitter: Emitter = Emitter { base_object, rays };
+    pub fn new(base_object: ObjectCircle, rays: Vec<ObjectRay>) -> Self {
+        let new_emitter = Emitter { base_object, rays };
 
         OBJ_COLLECTION
             .lock()
             .unwrap()
-            .push(RaytracerObjects::Emitter(new_emitter.clone()));
+            .push(RaytracerObjects::Emitters(Emitters::Emitter(
+                new_emitter.clone(),
+            )));
 
         new_emitter
     }
 }
 
+impl Drawable for Emitter {
+    /// Draws the isotropic emitter and its rays on the screen.
+    ///
+    /// Renders the emitter as a colored circle and draws all of its
+    /// associated light rays emanating from it.
+    fn draw_object(&self) {
+        // Draw the emitter's physical representation (a circle)
+        draw_circle(
+            self.base_object.pos_x,
+            self.base_object.pos_y,
+            self.base_object.radius,
+            self.base_object.color_fill,
+        );
+
+        // Draw all the light rays associated with this emitter
+        for ray in self.rays.clone() {
+            ray.draw_object();
+        }
+    }
+}
+
+impl Movable for Emitter {
+    /// Moves the emitter to a new position.
+    ///
+    /// Currently only logs the new position; implementation for actually
+    /// moving the emitter and updating its rays would need to be added.
+    ///
+    /// # Arguments
+    ///
+    /// * `pos_x` - The new x-coordinate position
+    /// * `pos_y` - The new y-coordinate position
+    fn move_object(&mut self, pos_x: f32, pos_y: f32) {
+        println!("{}, {}", pos_x, pos_y)
+    }
+}
+
 /// Represents a collimated (parallel rays) light emitter.
 ///
-/// This emitter produces rays that travel in parallel, similar to a laser beam
-/// in real-world physics. It has an orientation and beam diameter.
-///
-/// Represents a spotlight emitter.
-///
-/// This emitter produces rays within a specific angular range, defined by the
-/// `spotlight_beam_angle`. The rays are distributed within this angle, centered
-/// around the `orientation` angle, creating a cone-like light effect.
 /// This emitter produces rays that travel in parallel, similar to a laser beam
 /// in real-world physics. It has an orientation and beam diameter.
 #[derive(Clone)]
@@ -180,6 +164,45 @@ impl EmitterCollimated {
     /// # Returns
     ///
     /// A new `EmitterCollimated` instance with the specified parameters
+    pub fn new(
+        base_object: ObjectCircle,
+        rays: Vec<ObjectRay>,
+        orientation: f32,
+        collimated_beam_diameter: f32,
+    ) -> Self {
+        let new_emitter = EmitterCollimated {
+            base_emitter: Emitter { base_object, rays },
+            orientation,
+            collimated_beam_diameter,
+        };
+
+        OBJ_COLLECTION
+            .lock()
+            .unwrap()
+            .push(RaytracerObjects::Emitters(Emitters::EmitterCollimated(
+                new_emitter.clone(),
+            )));
+
+        new_emitter
+    }
+}
+
+/// Represents a spotlight emitter.
+///
+/// This emitter produces rays within a specific angular range, defined by the
+/// `spotlight_beam_angle`. The rays are distributed within this angle, centered
+/// around the `orientation` angle, creating a cone-like light effect.
+#[derive(Clone)]
+pub struct EmitterSpotlight {
+    /// The underlying emitter providing basic functionality
+    pub base_emitter: Emitter,
+    /// The central angle (in radians) at which the spotlight is directed
+    pub orientation: f32,
+    /// The angular range (in radians) within which rays are emitted
+    pub spotlight_beam_angle: f32,
+}
+
+impl EmitterSpotlight {
     /// Creates a new spotlight emitter with the specified properties.
     ///
     /// Adds the newly created emitter to the global object collection
@@ -201,38 +224,9 @@ impl EmitterCollimated {
         base_object: ObjectCircle,
         rays: Vec<ObjectRay>,
         orientation: f32,
-        collimated_beam_diameter: f32,
-    ) -> EmitterCollimated {
-        let new_emitter = EmitterCollimated {
-            base_emitter: Emitter { base_object, rays },
-            orientation,
-            collimated_beam_diameter,
-        };
-
-        OBJ_COLLECTION
-            .lock()
-            .unwrap()
-            .push(RaytracerObjects::EmitterCollimated(new_emitter.clone()));
-
-        new_emitter
-    }
-}
-
-#[derive(Clone)]
-pub struct EmitterSpotlight {
-    pub base_emitter: Emitter,
-    pub orientation: f32,
-    pub spotlight_beam_angle: f32,
-}
-
-impl EmitterSpotlight {
-    pub fn new(
-        base_object: ObjectCircle,
-        rays: Vec<ObjectRay>,
-        orientation: f32,
         spotlight_beam_angle: f32,
-    ) -> EmitterSpotlight {
-        let new_emitter: EmitterSpotlight = EmitterSpotlight {
+    ) -> Self {
+        let new_emitter = EmitterSpotlight {
             base_emitter: Emitter { base_object, rays },
             orientation,
             spotlight_beam_angle,
@@ -241,7 +235,9 @@ impl EmitterSpotlight {
         OBJ_COLLECTION
             .lock()
             .unwrap()
-            .push(RaytracerObjects::EmitterSpotlight(new_emitter.clone()));
+            .push(RaytracerObjects::Emitters(Emitters::EmitterSpotlight(
+                new_emitter.clone(),
+            )));
 
         new_emitter
     }

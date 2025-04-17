@@ -5,10 +5,10 @@
 //! It serves as the foundation for the object behavior system in the raytracer.
 //!
 //! author:         Zhean Ganituen (zrygan)
-//! last updated:   April 16, 2025
+//! last updated:   April 17, 2025
 
 use super::circle::ObjectCircle;
-use super::emitters::{Emitter, EmitterCollimated, EmitterSpotlight, Emitters};
+use super::emitters::Emitters;
 
 /// Enum that represents all possible object types in the raytracer.
 ///
@@ -19,11 +19,7 @@ pub enum RaytracerObjects {
     /// A circular shape object (used for barriers, mirrors, etc.)
     ObjectCircle(ObjectCircle),
     /// A standard isotropic light emitter
-    Emitter(Emitter),
-    /// A specialized light emitter that produces parallel rays
-    EmitterCollimated(EmitterCollimated),
-    /// A specialized light emitter that produces a spot light
-    EmitterSpotlight(EmitterSpotlight),
+    Emitters(Emitters),
 }
 
 /// Trait for objects that can be rendered to the screen.

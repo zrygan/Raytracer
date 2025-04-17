@@ -5,7 +5,7 @@
 //! It serves as the entry point and orchestrator for the entire application.
 //!
 //! author:         Zhean Ganituen (zrygan)
-//! last updated:   April 16, 2025
+//! last updated:   April 17, 2025
 
 mod globals;
 mod objects;
@@ -92,14 +92,8 @@ async fn main() {
                 RaytracerObjects::ObjectCircle(o) => {
                     o.draw_object();
                 }
-                RaytracerObjects::Emitter(o) => {
+                RaytracerObjects::Emitters(o) => {
                     o.draw_object();
-                }
-                RaytracerObjects::EmitterCollimated(o) => {
-                    o.base_emitter.draw_object();
-                }
-                RaytracerObjects::EmitterSpotlight(o) => {
-                    o.base_emitter.draw_object();
                 }
             }
         }
