@@ -1,4 +1,4 @@
-//! Ray object initializatin and behaviors
+//! Ray object initialization and behaviors
 
 use std::f32::consts::PI;
 
