@@ -8,6 +8,7 @@ use crate::objects::behavior::RaytracerObjects;
 use macroquad::input::KeyCode::{self};
 use macroquad::prelude::Color;
 use once_cell::sync::Lazy;
+use std::f32::consts::PI;
 use std::sync::Mutex;
 
 /// App Information (starts with the APP_ prefix)
@@ -61,8 +62,10 @@ pub const OBJC_MAX_RAY_COUNT: i32 = 25;
 /// raytracer objects when created.
 pub const OBJD_CIRCLE_RADIUS: f32 = 50.0;
 pub const OBJD_CIRCLE_FILL: Color = CORNFLOWER_BLUE;
-pub const OBJD_RAY_WIDTH: f32 = 2.5;
-pub const OBJD_RAY_COLOR: Color = CORNFLOWER_BLUE;
+pub const OBJD_RAY_WIDTH: f32 = 1.0;
+pub const OBJD_RAY_COLOR: Color = Color::new(0.5, 0.5, 0.5, 1.0);
+pub const OBJD_COLLIMATED_BEAM_DIAMETER: f32 = 2.0 * OBJD_CIRCLE_RADIUS;
+pub const OBJD_COLLIMATED_ORIENTATION: f32 = 0.0; // in radians
 
 /// Raytracer Keybinds (starts with KEYB_ prefix)
 /// 
