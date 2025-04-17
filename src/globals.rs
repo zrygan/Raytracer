@@ -30,7 +30,7 @@ pub const WINDOW_BG_COLOR: Color = Color::new(0.00, 0.00, 0.00, 1.00); // Black
 /// Standard Colors
 /// 
 /// Common colors used throughout the application for consistent visual styling.
-pub const CORNFLOWER_BLUE: Color = Color::new(1.00, 0.34, 0.20, 1.00);
+pub const CORNFLOWER_BLUE: Color = Color::new(0.39, 0.58, 0.92, 1.00);
 
 /// Macroquad Set Up (starts with the MACROQUAD_ prefix)
 /// 
