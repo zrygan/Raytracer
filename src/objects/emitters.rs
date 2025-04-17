@@ -56,7 +56,7 @@ impl Drawable for Emitter {
 impl Movable for Emitter {
     // #[warn(unused_variables)]
     fn move_object(&mut self, pos_x: f32, pos_y: f32) {
-        println!("{}{}", pos_x, pos_y)
+        println!("{}, {}", pos_x, pos_y)
     }
 }
 
