@@ -3,8 +3,9 @@
 //! This module contains the definition of light rays used in the raytracer,
 //! including both the base `ObjectRay` struct and helper functions to create 
 //! different ray patterns.
-//! author: Zhean Ganituen (zrygan)
-//! last updated: April 16, 2025
+//!
+//! author:         Zhean Ganituen (zrygan)
+//! last updated:   April 16, 2025
 
 use std::f32::consts::PI;
 

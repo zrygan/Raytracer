@@ -3,6 +3,9 @@
 //! This module provides light emitter implementations for the raytracer system.
 //! It defines two types of emitters: isotropic (radiating in all directions)
 //! and collimated (parallel rays, like a laser).
+//! 
+//! author:         Zhean Ganituen (zrygan)
+//! last updated:   April 16, 2025
 
 use macroquad::shapes::{draw_circle, draw_line};
 
