@@ -56,7 +56,8 @@ impl Movable for Emitters {
 }
 
 impl Drawable for Emitter {
-    /// Draws the isotropic emitter and its rays on the screen.
+    /// Draws the isotropic emitter (or the base emitter) and its rays on the 
+    /// screen.
     ///
     /// Renders the emitter as a colored circle and draws all of its
     /// associated light rays emanating from it.
@@ -86,7 +87,7 @@ impl Drawable for Emitter {
 impl Movable for Emitter {
     /// Moves the emitter to a new position.
     ///
-    /// Currently only logs the new position; implementation for actually
+    /// TODO: Currently only logs the new position; implementation for actually
     /// moving the emitter and updating its rays would need to be added.
     ///
     /// # Arguments
