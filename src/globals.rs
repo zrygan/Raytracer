@@ -43,4 +43,5 @@ pub const OBJD_RAY_COLOR: Color = CORNFLOWER_BLUE;
 
 /// Raytracer Keybinds (starts with KEYB_ prefix)
 pub const KEYB_SIMPLE_CIRCLE: KeyCode = KeyCode::S;
-pub const KEYB_EMITTER_POINT: KeyCode = KeyCode::P;
+pub const KEYB_EMITTER_ISOTROPIC: KeyCode = KeyCode::I;
+pub const KEYB_EMITTER_COLLIMATED: KeyCode = KeyCode::C;

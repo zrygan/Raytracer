@@ -1,12 +1,13 @@
 //! Traits for Raytracer Objects
 
 use super::circle::ObjectCircle;
-use super::emitters::EmitterPoint;
+use super::emitters::{Emitter, EmitterCollimated};
 
 /// Enum for all Raytracer Objects
 pub enum RaytracerObjects {
     ObjectCircle(ObjectCircle),
-    EmitterPoint(EmitterPoint),
+    Emitter(Emitter),
+    EmitterCollimated(EmitterCollimated),
 }
 
 /// Drawable trait for Objects
