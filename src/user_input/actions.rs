@@ -8,11 +8,12 @@
 
 use crate::globals::{
     OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS, OBJD_COLLIMATED_BEAM_DIAMETER,
-    OBJD_COLLIMATED_ORIENTATION,
+    OBJD_COLLIMATED_ORIENTATION, OBJD_RAY_WIDTH, OBJD_SPOTLIGHT_BEAM_ANGLE,
+    OBJD_SPOTLIGHT_ORIENTATION,
 };
 use crate::objects::circle::ObjectCircle;
-use crate::objects::emitters::{Emitter, EmitterCollimated};
-use crate::objects::ray::{init_collimated_rays, init_isotropic_rays};
+use crate::objects::emitters::{Emitter, EmitterCollimated, EmitterSpotlight};
+use crate::objects::ray::{init_collimated_rays, init_isotropic_rays, init_spotlight_rays};
 use macroquad::input::mouse_position;
 
 /// Creates and adds a new object to the scene at the current mouse position.
@@ -49,7 +50,6 @@ pub fn add_object_to_scene(object_type: &str) {
         );
     } else if let "emitter_collimated" = object_type {
         // Create a collimated emitter (parallel rays, like a laser)
-        // Uses a fixed angle of 30 degrees and beam width of 10 * ray width
         EmitterCollimated::new(
             ObjectCircle::new(mouse_x, mouse_y, OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS),
             init_collimated_rays(
@@ -60,6 +60,19 @@ pub fn add_object_to_scene(object_type: &str) {
             ),
             OBJD_COLLIMATED_ORIENTATION,
             2.0 * OBJD_CIRCLE_RADIUS,
+        );
+    } else if let "emitter_spotlight" = object_type {
+        // Create a spotlight emitter (like a flashlight)
+        EmitterSpotlight::new(
+            ObjectCircle::new(mouse_x, mouse_y, OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS),
+            init_spotlight_rays(
+                mouse_x,
+                mouse_y,
+                OBJD_SPOTLIGHT_ORIENTATION,
+                OBJD_SPOTLIGHT_BEAM_ANGLE,
+            ),
+            OBJD_SPOTLIGHT_ORIENTATION,
+            OBJD_SPOTLIGHT_BEAM_ANGLE,
         );
     }
 }

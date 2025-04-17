@@ -3,7 +3,7 @@
 //! This module provides light emitter implementations for the raytracer system.
 //! It defines two types of emitters: isotropic (radiating in all directions)
 //! and collimated (parallel rays, like a laser).
-//! 
+//!
 //! author:         Zhean Ganituen (zrygan)
 //! last updated:   April 16, 2025
 
@@ -56,7 +56,7 @@ impl Movable for Emitters {
 }
 
 impl Drawable for Emitter {
-    /// Draws the isotropic emitter (or the base emitter) and its rays on the 
+    /// Draws the isotropic emitter (or the base emitter) and its rays on the
     /// screen.
     ///
     /// Renders the emitter as a colored circle and draws all of its
@@ -146,6 +146,14 @@ impl Emitter {
 ///
 /// This emitter produces rays that travel in parallel, similar to a laser beam
 /// in real-world physics. It has an orientation and beam diameter.
+///
+/// Represents a spotlight emitter.
+///
+/// This emitter produces rays within a specific angular range, defined by the
+/// `spotlight_beam_angle`. The rays are distributed within this angle, centered
+/// around the `orientation` angle, creating a cone-like light effect.
+/// This emitter produces rays that travel in parallel, similar to a laser beam
+/// in real-world physics. It has an orientation and beam diameter.
 #[derive(Clone)]
 pub struct EmitterCollimated {
     /// The underlying emitter providing basic functionality
@@ -172,6 +180,23 @@ impl EmitterCollimated {
     /// # Returns
     ///
     /// A new `EmitterCollimated` instance with the specified parameters
+    /// Creates a new spotlight emitter with the specified properties.
+    ///
+    /// Adds the newly created emitter to the global object collection
+    /// for tracking in the raytracer system.
+    ///
+    /// # Arguments
+    ///
+    /// * `base_object` - The physical properties of the emitter
+    /// * `rays` - Collection of rays to be emitted from this source
+    /// * `orientation` - The central angle (in radians) at which the spotlight is directed
+    /// * `spotlight_beam_angle` - The angular range (in radians) within which rays are emitted,
+    ///   forming a cone of light. A smaller angle creates a narrower beam, while a larger angle
+    ///   creates a wider beam.
+    ///
+    /// # Returns
+    ///
+    /// A new `EmitterSpotlight` instance with the specified parameters
     pub fn new(
         base_object: ObjectCircle,
         rays: Vec<ObjectRay>,
@@ -188,6 +213,35 @@ impl EmitterCollimated {
             .lock()
             .unwrap()
             .push(RaytracerObjects::EmitterCollimated(new_emitter.clone()));
+
+        new_emitter
+    }
+}
+
+#[derive(Clone)]
+pub struct EmitterSpotlight {
+    pub base_emitter: Emitter,
+    pub orientation: f32,
+    pub spotlight_beam_angle: f32,
+}
+
+impl EmitterSpotlight {
+    pub fn new(
+        base_object: ObjectCircle,
+        rays: Vec<ObjectRay>,
+        orientation: f32,
+        spotlight_beam_angle: f32,
+    ) -> EmitterSpotlight {
+        let new_emitter: EmitterSpotlight = EmitterSpotlight {
+            base_emitter: Emitter { base_object, rays },
+            orientation,
+            spotlight_beam_angle,
+        };
+
+        OBJ_COLLECTION
+            .lock()
+            .unwrap()
+            .push(RaytracerObjects::EmitterSpotlight(new_emitter.clone()));
 
         new_emitter
     }
