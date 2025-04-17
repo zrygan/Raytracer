@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["amain","main","window_conf"],"mod":["globals","objects","user_input"]};

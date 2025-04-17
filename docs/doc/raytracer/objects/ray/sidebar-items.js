@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["init_collimated_rays","init_isotropic_rays"],"struct":["ObjectRay"]};
