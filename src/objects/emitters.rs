@@ -3,7 +3,7 @@
 //! This module provides light emitter implementations for the raytracer system.
 //! It defines two types of emitters: isotropic (radiating in all directions)
 //! and collimated (parallel rays, like a laser).
-//! 
+//!
 //! author:         Zhean Ganituen (zrygan)
 //! last updated:   April 16, 2025
 
@@ -56,7 +56,7 @@ impl Movable for Emitters {
 }
 
 impl Drawable for Emitter {
-    /// Draws the isotropic emitter (or the base emitter) and its rays on the 
+    /// Draws the isotropic emitter (or the base emitter) and its rays on the
     /// screen.
     ///
     /// Renders the emitter as a colored circle and draws all of its
@@ -188,6 +188,35 @@ impl EmitterCollimated {
             .lock()
             .unwrap()
             .push(RaytracerObjects::EmitterCollimated(new_emitter.clone()));
+
+        new_emitter
+    }
+}
+
+#[derive(Clone)]
+pub struct EmitterSpotlight {
+    pub base_emitter: Emitter,
+    pub orientation: f32,
+    pub spotlight_beam_angle: f32,
+}
+
+impl EmitterSpotlight {
+    pub fn new(
+        base_object: ObjectCircle,
+        rays: Vec<ObjectRay>,
+        orientation: f32,
+        spotlight_beam_angle: f32,
+    ) -> EmitterSpotlight {
+        let new_emitter: EmitterSpotlight = EmitterSpotlight {
+            base_emitter: Emitter { base_object, rays },
+            orientation,
+            spotlight_beam_angle,
+        };
+
+        OBJ_COLLECTION
+            .lock()
+            .unwrap()
+            .push(RaytracerObjects::EmitterSpotlight(new_emitter.clone()));
 
         new_emitter
     }

@@ -1,7 +1,7 @@
 //! Ray object initialization and behaviors
 //!
 //! This module contains the definition of light rays used in the raytracer,
-//! including both the base `ObjectRay` struct and helper functions to create 
+//! including both the base `ObjectRay` struct and helper functions to create
 //! different ray patterns.
 //!
 //! author:         Zhean Ganituen (zrygan)
@@ -9,10 +9,12 @@
 
 use std::f32::consts::PI;
 
+use super::utils::linspace;
 use crate::globals::{OBJC_MAX_RAY_COUNT, OBJD_RAY_COLOR, OBJD_RAY_WIDTH};
 
 use macroquad::{
-    color::Color, window::{screen_height, screen_width}
+    color::Color,
+    window::{screen_height, screen_width},
 };
 
 /// Represents a single light ray in the raytracer.
@@ -97,9 +99,7 @@ pub fn init_isotropic_rays(start_x: f32, start_y: f32) -> Vec<ObjectRay> {
         rays.push(ObjectRay {
             start_x,
             start_y,
-            // Use cosine for x component, extending to screen edge
             end_x: start_x + angle.cos() * screen_width(),
-            // Use sine for y component, extending to screen edge
             end_y: start_y + angle.sin() * screen_height(),
             thickness: OBJD_RAY_WIDTH,
             color: OBJD_RAY_COLOR,
@@ -157,6 +157,37 @@ pub fn init_collimated_rays(
             // Extend ray to screen edge in the direction of orientation
             end_x: start_x + offset_x + cos_x * screen_width(),
             end_y: start_y + offset_y + sin_y * screen_height(),
+            thickness: OBJD_RAY_WIDTH,
+            color: OBJD_RAY_COLOR,
+        });
+    }
+
+    rays
+}
+
+pub fn init_spotlight_rays(
+    start_x: f32,
+    start_y: f32,
+    orientation: f32,
+    spotlight_beam_angle: f32,
+) -> Vec<ObjectRay> {
+    let mut rays: Vec<ObjectRay> = Vec::with_capacity(OBJC_MAX_RAY_COUNT as usize);
+
+    // generate angles that are linearly spaced
+    let half_angle = spotlight_beam_angle / 2.0;
+    let angles = linspace(
+        orientation - half_angle,
+        orientation + half_angle,
+        OBJC_MAX_RAY_COUNT,
+    )
+    .expect("Number of rays for spotlight must be at least 2.");
+
+    for angle in angles {
+        rays.push(ObjectRay {
+            start_x: start_x,
+            start_y: start_y,
+            end_x: start_x + screen_width() * angle.cos(),
+            end_y: start_y + screen_height() * -1.0 * angle.sin(),
             thickness: OBJD_RAY_WIDTH,
             color: OBJD_RAY_COLOR,
         });
