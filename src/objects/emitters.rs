@@ -130,6 +130,7 @@ impl Movable for Emitter {
     /// * `pos_x` - The new x-coordinate position
     /// * `pos_y` - The new y-coordinate position
     fn move_object(&mut self, pos_x: f32, pos_y: f32) {
+        // TODO: @zrygan
         println!("{}, {}", pos_x, pos_y)
     }
 }

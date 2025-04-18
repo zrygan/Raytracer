@@ -51,51 +51,63 @@ fn window_conf() -> Conf {
 /// attribute, which initializes the Macroquad rendering environment.
 #[macroquad::main(window_conf)]
 async fn main() {
+    println!(
+        "{} ver. {}\nBy: {}\nSource Available on: {}",
+        APP_NAME, APP_VERSION, APP_AUTHOR, APP_GITHUB
+    );
+
     loop {
         // Clear the screen with the background color
         clear_background(WINDOW_BG_COLOR);
 
         // Handle user input for object creation
-        if is_key_pressed(KEYB_SIMPLE_CIRCLE) {
-            println!(
-                "Simple circle created at {}, {}",
-                mouse_position().0,
-                mouse_position().1
-            );
-            add_object_to_scene("circle_none");
-        } else if is_key_pressed(KEYB_EMITTER_ISOTROPIC) {
-            println!(
-                "Isotropic emitter object created at {}, {}",
-                mouse_position().0,
-                mouse_position().1
-            );
-            add_object_to_scene("emitter_isotropic");
-        } else if is_key_pressed(KEYB_EMITTER_COLLIMATED) {
-            println!(
-                "Collimated emitter object created at {}, {}",
-                mouse_position().0,
-                mouse_position().1
-            );
-            add_object_to_scene("emitter_collimated");
-        } else if is_key_pressed(KEYB_EMITTER_SPOTLIGHT) {
-            println!(
-                "Spotlight emitter object created at {}, {}",
-                mouse_position().0,
-                mouse_position().1
-            );
-            add_object_to_scene("emitter_spotlight");
-        }
+        if OBJC_MAX_OBJ_COUNT as usize <= OBJ_COLLECTION.lock().iter().len() {
+            if is_key_pressed(KEYB_SIMPLE_CIRCLE) {
+                println!(
+                    "Raytracer Upd: Simple circle created at {}, {}",
+                    mouse_position().0,
+                    mouse_position().1
+                );
+                add_object_to_scene("circle_none");
+            } else if is_key_pressed(KEYB_EMITTER_ISOTROPIC) {
+                println!(
+                    "Raytracer Upd: Isotropic emitter object created at {}, {}",
+                    mouse_position().0,
+                    mouse_position().1
+                );
+                add_object_to_scene("emitter_isotropic");
+            } else if is_key_pressed(KEYB_EMITTER_COLLIMATED) {
+                println!(
+                    "Raytracer Upd: Collimated emitter object created at {}, {}",
+                    mouse_position().0,
+                    mouse_position().1
+                );
+                add_object_to_scene("emitter_collimated");
+            } else if is_key_pressed(KEYB_EMITTER_SPOTLIGHT) {
+                println!(
+                    "Raytracer Upd: Spotlight emitter object created at {}, {}",
+                    mouse_position().0,
+                    mouse_position().1
+                );
+                add_object_to_scene("emitter_spotlight");
+            }
 
-        // Draw all objects in the global collection
-        for r_obj in OBJ_COLLECTION.lock().unwrap().iter() {
-            match r_obj {
-                RaytracerObjects::ObjectCircle(o) => {
-                    o.draw_object();
-                }
-                RaytracerObjects::Emitters(o) => {
-                    o.draw_object();
+            // Draw all objects in the global collection
+            for r_obj in OBJ_COLLECTION.lock().unwrap().iter() {
+                match r_obj {
+                    RaytracerObjects::ObjectCircle(o) => {
+                        o.draw_object();
+                    }
+                    RaytracerObjects::Emitters(o) => {
+                        o.draw_object();
+                    }
                 }
             }
+        } else {
+            println!(
+                "Raytracer Err: Too many RaytracerObjects in the scene, you can only have {}",
+                OBJ_COLLECTION.lock().iter().len()
+            );
         }
 
         // Wait for the next frame
