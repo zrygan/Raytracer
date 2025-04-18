@@ -4,6 +4,9 @@ from modules.variables import *
 from modules.shadowing import *
 
 if __name__ == "__main__":
+    print("Raytracer ver. 0.py\nBy: Zhean Ganituen\nSource Available on: https://github.com/zrygan/Raytracer")
+    print("Notice. This is the Python legacy edition and only has features from ver 0.py.")
+    print("This version is NOT MAINTAINED anymore.")
     pygame.init()
 
     while RUNNING:
