@@ -45,9 +45,9 @@ pub fn occlusion(occluder: &Absorbers, ray: &ObjectRay) -> Option<(f32, f32)> {
     };
 
     // check both solutions choose the one that is after the start of the ray
-    if (0.0 < sol_1) & (sol_1 <= 1.0) {
+    if (0.0 < sol_1) && (sol_1 <= 1.0) {
         return Some((xs + sol_1 * slope.0, ys + sol_1 * slope.1));
-    } else if (0.0 < sol_2) & (sol_2 <= 1.0) {
+    } else if (0.0 < sol_2) && (sol_2 <= 1.0) {
         return Some((xs + sol_2 * slope.0, ys + sol_2 * slope.1));
     }
 
