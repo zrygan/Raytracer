@@ -18,6 +18,7 @@ use crate::OBJ_COLLECTION;
 ///
 /// This enum allows different emitter types to be treated polymorphically
 /// in the rendering and physics systems.
+#[derive(Clone, Debug)]
 pub enum Emitters {
     /// Standard isotropic emitter that radiates light in all directions
     Emitter(Emitter),
@@ -62,7 +63,7 @@ impl Movable for Emitters {
 ///
 /// This emitter radiates light rays in all directions from a central point,
 /// similar to a point light source in real-world physics.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Emitter {
     /// The physical representation of the emitter (position, size, color)
     pub base_object: ObjectCircle,
@@ -130,8 +131,8 @@ impl Movable for Emitter {
     /// * `pos_x` - The new x-coordinate position
     /// * `pos_y` - The new y-coordinate position
     fn move_object(&mut self, pos_x: f32, pos_y: f32) {
-        // TODO: @zrygan
-        println!("{}, {}", pos_x, pos_y)
+        self.base_object.pos_x = pos_x;
+        self.base_object.pos_y = pos_y;
     }
 }
 
@@ -139,7 +140,7 @@ impl Movable for Emitter {
 ///
 /// This emitter produces rays that travel in parallel, similar to a laser beam
 /// in real-world physics. It has an orientation and beam diameter.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct EmitterCollimated {
     /// The underlying emitter providing basic functionality
     pub base_emitter: Emitter,
@@ -193,7 +194,7 @@ impl EmitterCollimated {
 /// This emitter produces rays within a specific angular range, defined by the
 /// `spotlight_beam_angle`. The rays are distributed within this angle, centered
 /// around the `orientation` angle, creating a cone-like light effect.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct EmitterSpotlight {
     /// The underlying emitter providing basic functionality
     pub base_emitter: Emitter,

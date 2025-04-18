@@ -23,7 +23,7 @@ use macroquad::{
 ///
 /// A ray has a starting point, ending point, visual properties (thickness and color),
 /// and is used by emitter objects to simulate light propagation.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ObjectRay {
     /// X coordinate of the ray's starting point
     start_x: f32,

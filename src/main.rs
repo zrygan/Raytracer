@@ -8,12 +8,14 @@
 //! last updated:   April 17, 2025
 
 mod globals;
+mod helpers;
 mod objects;
 mod user_input;
 
 use globals::*;
+use helpers::utils::remove_object_at_index;
 use macroquad::prelude::*;
-use objects::behavior::*;
+use objects::{behavior::*, emitters::*};
 use user_input::actions::add_object_to_scene;
 
 /// Configures the application window settings.
@@ -34,7 +36,7 @@ fn window_conf() -> Conf {
         fullscreen: MACROQUAD_FULLSCREEN,
         sample_count: MACROQUAD_SAMPLE_COUNT,
         window_resizable: MACROQUAD_RESIZEABLE,
-        ..Default::default()
+        ..Default::default() // the rest are left to be the default values
     }
 }
 
@@ -51,43 +53,48 @@ fn window_conf() -> Conf {
 /// attribute, which initializes the Macroquad rendering environment.
 #[macroquad::main(window_conf)]
 async fn main() {
+    // main function variables
+    let mut dragged_index: Option<usize> = None;
+    let mut mouse_x: f32;
+    let mut mouse_y: f32;
+    let mut mouse_delta: Vec2 = vec2(0.0, 0.0);
+
+    // print app information
     println!(
         "{} ver. {}\nBy: {}\nSource Available on: {}",
         APP_NAME, APP_VERSION, APP_AUTHOR, APP_GITHUB
     );
 
+    // Clear the screen with the background color
+    clear_background(WINDOW_BG_COLOR);
+
     loop {
-        // Clear the screen with the background color
-        clear_background(WINDOW_BG_COLOR);
+        (mouse_x, mouse_y) = mouse_position();
 
         // Handle user input for object creation
-        if OBJC_MAX_OBJ_COUNT as usize <= OBJ_COLLECTION.lock().iter().len() {
+        if OBJC_MAX_OBJ_COUNT as usize > OBJ_COLLECTION.lock().iter().len() {
             if is_key_pressed(KEYB_SIMPLE_CIRCLE) {
                 println!(
                     "Raytracer Upd: Simple circle created at {}, {}",
-                    mouse_position().0,
-                    mouse_position().1
+                    mouse_x, mouse_y
                 );
                 add_object_to_scene("circle_none");
             } else if is_key_pressed(KEYB_EMITTER_ISOTROPIC) {
                 println!(
                     "Raytracer Upd: Isotropic emitter object created at {}, {}",
-                    mouse_position().0,
-                    mouse_position().1
+                    mouse_x, mouse_y
                 );
                 add_object_to_scene("emitter_isotropic");
             } else if is_key_pressed(KEYB_EMITTER_COLLIMATED) {
                 println!(
                     "Raytracer Upd: Collimated emitter object created at {}, {}",
-                    mouse_position().0,
-                    mouse_position().1
+                    mouse_x, mouse_y
                 );
                 add_object_to_scene("emitter_collimated");
             } else if is_key_pressed(KEYB_EMITTER_SPOTLIGHT) {
                 println!(
                     "Raytracer Upd: Spotlight emitter object created at {}, {}",
-                    mouse_position().0,
-                    mouse_position().1
+                    mouse_x, mouse_y
                 );
                 add_object_to_scene("emitter_spotlight");
             }
@@ -95,20 +102,68 @@ async fn main() {
             // Draw all objects in the global collection
             for r_obj in OBJ_COLLECTION.lock().unwrap().iter() {
                 match r_obj {
-                    RaytracerObjects::ObjectCircle(o) => {
-                        o.draw_object();
+                    RaytracerObjects::ObjectCircle(object) => {
+                        object.draw_object();
                     }
-                    RaytracerObjects::Emitters(o) => {
-                        o.draw_object();
+                    RaytracerObjects::Emitters(object) => {
+                        object.draw_object();
                     }
                 }
             }
         } else {
-            println!(
+            eprintln!(
                 "Raytracer Err: Too many RaytracerObjects in the scene, you can only have {}",
                 OBJ_COLLECTION.lock().iter().len()
             );
         }
+
+        // Check if the user wants to move an object
+        if is_mouse_button_down(MouseButton::Left) {
+            let temp = OBJ_COLLECTION.lock().unwrap();
+
+            for (index, object) in temp.iter().enumerate() {
+                let (x, y) = object.get_pos();
+                if (mouse_x - x).abs() < OBJC_MOUSE_EPSILON + OBJD_CIRCLE_RADIUS
+                    && (mouse_y - y).abs() < OBJC_MOUSE_EPSILON + OBJD_CIRCLE_RADIUS
+                {
+                    dragged_index = Some(index);
+                    println!("Raytracer Upd: Moving object {:#?}", object);
+                    break;
+                }
+            }
+        }
+
+        // If the user is not moving an object, remove dragging_index
+        if !is_mouse_button_down(MouseButton::Left) && (dragged_index.is_some()) {
+            println!("Raytracer Upd: Stopped moving object.");
+            dragged_index = None;
+        }
+
+        // If user is moving the cursor and is dragging an object,
+        // move that object
+        if mouse_delta != vec2(0.0, 0.0) && dragged_index.is_some() {
+            let mut raytracer_object = {
+                let collection = OBJ_COLLECTION.lock().unwrap();
+                collection[dragged_index.unwrap()].clone()
+            };
+
+            match &mut raytracer_object {
+                RaytracerObjects::ObjectCircle(object) => object.move_object(mouse_x, mouse_y),
+                RaytracerObjects::Emitters(emitter) => match emitter {
+                    Emitters::Emitter(object) => object.move_object(mouse_x, mouse_y),
+                    Emitters::EmitterCollimated(object) => object
+                        .base_emitter
+                        .base_object
+                        .move_object(mouse_x, mouse_y),
+                    Emitters::EmitterSpotlight(object) => object
+                        .base_emitter
+                        .base_object
+                        .move_object(mouse_x, mouse_y),
+                },
+            }
+        }
+
+        mouse_delta = mouse_delta_position();
 
         // Wait for the next frame
         next_frame().await;
