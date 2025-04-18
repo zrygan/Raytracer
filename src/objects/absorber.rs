@@ -7,7 +7,6 @@
 
 use super::behavior::*;
 use super::circle::ObjectCircle;
-use crate::OBJ_COLLECTION;
 
 #[derive(Clone, Debug)]
 pub enum Absorbers {
@@ -37,15 +36,6 @@ pub struct AbsorberPerfect {
 
 impl AbsorberPerfect {
     pub fn new(base_object: ObjectCircle) -> AbsorberPerfect {
-        let new_object: AbsorberPerfect = AbsorberPerfect { base_object };
-
-        OBJ_COLLECTION
-            .lock()
-            .unwrap()
-            .push(RaytracerObjects::Absorbers(Absorbers::AbsorberPerfect(
-                new_object.clone(),
-            )));
-
-        new_object
+        AbsorberPerfect { base_object }
     }
 }

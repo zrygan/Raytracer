@@ -8,8 +8,7 @@
 //! author:         Zhean Ganituen (zrygan)
 //! last updated:   April 16, 2025
 
-use super::behavior::{Drawable, Movable, RaytracerObjects};
-use crate::globals::*;
+use super::behavior::{Drawable, Movable};
 
 use macroquad::prelude::*;
 
@@ -53,17 +52,6 @@ impl ObjectCircle {
             color_fill,
             radius,
         }
-    }
-
-    pub fn new_and_add(pos_x: f32, pos_y: f32, color_fill: Color, radius: f32) -> ObjectCircle {
-        let new_circle: ObjectCircle = ObjectCircle::new(pos_x, pos_y, color_fill, radius);
-
-        OBJ_COLLECTION
-            .lock()
-            .unwrap()
-            .push(RaytracerObjects::ObjectCircle(new_circle.clone()));
-
-        new_circle
     }
 }
 

@@ -54,41 +54,50 @@ pub fn occlusion(occluder: &Absorbers, ray: &ObjectRay) -> Option<(f32, f32)> {
 }
 
 pub fn check_for_occlusion() {
-    let mut collection = OBJ_COLLECTION.lock().unwrap();
+    // Filter absorbers from the collection
+    let absorbers: Vec<_> = {
+        let collection = OBJ_COLLECTION.read().unwrap();
+        collection
+            .iter()
+            .filter_map(|obj| {
+                if let RaytracerObjects::Absorbers(absorber) = obj {
+                    Some(absorber.clone())
+                } else {
+                    None
+                }
+            })
+            .collect()
+    };
 
-    let absorbers: Vec<Absorbers> = collection
-        .iter()
-        .filter_map(|obj| {
-            if let RaytracerObjects::Absorbers(absorber) = obj {
-                Some(absorber.clone())
-            } else {
-                None
-            }
-        })
-        .collect();
+    {
+        let mut collection = OBJ_COLLECTION.write().unwrap();
+        for index in 0..collection.len() {
+            if let Some(obj) = collection.get_mut(index) {
+                if let RaytracerObjects::Emitters(emitter) = obj {
+                    // Get mutable reference to the rays depending on the type of emitter
+                    let rays = match emitter {
+                        Emitters::EmitterIsotropic(o) => &mut o.rays,
+                        Emitters::EmitterCollimated(o) => &mut o.base_emitter.rays,
+                        Emitters::EmitterSpotlight(o) => &mut o.base_emitter.rays,
+                    };
 
-    for obj in collection.iter_mut() {
-        if let RaytracerObjects::Emitters(emitter) = obj {
-            let rays = match emitter {
-                Emitters::EmitterIsotropic(o) => &mut o.rays,
-                Emitters::EmitterCollimated(o) => &mut o.base_emitter.rays,
-                Emitters::EmitterSpotlight(o) => &mut o.base_emitter.rays,
-            };
+                    // Check each ray against each absorber for occlusion
+                    for ray in rays.iter_mut() {
+                        for absorber in &absorbers {
+                            if let Some(hit_point) = occlusion(absorber, ray) {
+                                let current_length = ((ray.end_x - ray.start_x).powi(2)
+                                    + (ray.end_y - ray.start_y).powi(2))
+                                .sqrt();
+                                let new_length = ((hit_point.0 - ray.start_x).powi(2)
+                                    + (hit_point.1 - ray.start_y).powi(2))
+                                .sqrt();
 
-            // For each ray, check occlusion against all absorbers
-            for ray in rays.iter_mut() {
-                for absorber in &absorbers {
-                    if let Some(hit_point) = occlusion(absorber, ray) {
-                        let current_length = ((ray.end_x - ray.start_x).powi(2)
-                            + (ray.end_y - ray.start_y).powi(2))
-                        .sqrt();
-                        let new_length = ((hit_point.0 - ray.start_x).powi(2)
-                            + (hit_point.1 - ray.start_y).powi(2))
-                        .sqrt();
-
-                        if new_length < current_length {
-                            ray.end_x = hit_point.0;
-                            ray.end_y = hit_point.1;
+                                // If the new length is shorter, update the ray's end point
+                                if new_length < current_length {
+                                    ray.end_x = hit_point.0;
+                                    ray.end_y = hit_point.1;
+                                }
+                            }
                         }
                     }
                 }

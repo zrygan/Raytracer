@@ -10,9 +10,11 @@ use crate::globals::{
     OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS, OBJD_COLLIMATED_BEAM_DIAMETER,
     OBJD_COLLIMATED_ORIENTATION, OBJD_SPOTLIGHT_BEAM_ANGLE, OBJD_SPOTLIGHT_ORIENTATION,
 };
-use crate::objects::absorber::AbsorberPerfect;
+use crate::helpers::object_utils::add_object_to_collection;
+use crate::objects::absorber::{AbsorberPerfect, Absorbers};
+use crate::objects::behavior::RaytracerObjects;
 use crate::objects::circle::ObjectCircle;
-use crate::objects::emitters::{EmitterCollimated, EmitterIsotropic, EmitterSpotlight};
+use crate::objects::emitters::{EmitterCollimated, EmitterIsotropic, EmitterSpotlight, Emitters};
 use crate::objects::ray::{init_collimated_rays, init_isotropic_rays, init_spotlight_rays};
 use macroquad::input::mouse_position;
 
@@ -41,16 +43,22 @@ pub fn add_object_to_scene(object_type: &str) {
 
     if let "circle_none" = object_type {
         // Create a basic circle object at the mouse position
-        ObjectCircle::new_and_add(mouse_x, mouse_y, OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS);
+        let new_object = ObjectCircle::new(mouse_x, mouse_y, OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS);
+
+        add_object_to_collection(RaytracerObjects::ObjectCircle(new_object));
     } else if let "emitter_isotropic" = object_type {
         // Create an isotropic emitter (radiating in all directions)
-        EmitterIsotropic::new(
+        let new_object = EmitterIsotropic::new(
             ObjectCircle::new(mouse_x, mouse_y, OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS),
             init_isotropic_rays(mouse_x, mouse_y),
         );
+
+        add_object_to_collection(RaytracerObjects::Emitters(Emitters::EmitterIsotropic(
+            new_object,
+        )));
     } else if let "emitter_collimated" = object_type {
         // Create a collimated emitter (parallel rays, like a laser)
-        EmitterCollimated::new(
+        let new_object = EmitterCollimated::new(
             ObjectCircle::new(mouse_x, mouse_y, OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS),
             init_collimated_rays(
                 mouse_x,
@@ -61,9 +69,13 @@ pub fn add_object_to_scene(object_type: &str) {
             OBJD_COLLIMATED_ORIENTATION,
             2.0 * OBJD_CIRCLE_RADIUS,
         );
+
+        add_object_to_collection(RaytracerObjects::Emitters(Emitters::EmitterCollimated(
+            new_object,
+        )));
     } else if let "emitter_spotlight" = object_type {
         // Create a spotlight emitter (like a flashlight)
-        EmitterSpotlight::new(
+        let new_object = EmitterSpotlight::new(
             ObjectCircle::new(mouse_x, mouse_y, OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS),
             init_spotlight_rays(
                 mouse_x,
@@ -74,13 +86,21 @@ pub fn add_object_to_scene(object_type: &str) {
             OBJD_SPOTLIGHT_ORIENTATION,
             OBJD_SPOTLIGHT_BEAM_ANGLE,
         );
+
+        add_object_to_collection(RaytracerObjects::Emitters(Emitters::EmitterSpotlight(
+            new_object,
+        )));
     } else if let "absorber_perfect" = object_type {
         // Create a perfect absorber (full opaque)
-        AbsorberPerfect::new(ObjectCircle::new(
+        let new_object = AbsorberPerfect::new(ObjectCircle::new(
             mouse_x,
             mouse_y,
             OBJD_CIRCLE_FILL,
             OBJD_CIRCLE_RADIUS,
         ));
+
+        add_object_to_collection(RaytracerObjects::Absorbers(Absorbers::AbsorberPerfect(
+            new_object,
+        )));
     }
 }

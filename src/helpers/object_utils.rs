@@ -45,7 +45,7 @@ pub fn linspace(x1: f32, x2: f32, sample_size: i32) -> Option<Vec<f32>> {
 }
 
 pub fn init_all_rays() {
-    let mut collection = OBJ_COLLECTION.lock().unwrap();
+    let mut collection = OBJ_COLLECTION.write().unwrap();
 
     // Iterate through the objects directly
     for obj in collection.iter_mut() {
@@ -71,6 +71,21 @@ pub fn init_all_rays() {
                     )
                 }
             }
+        }
+    }
+}
+
+pub fn add_object_to_collection(new_object: RaytracerObjects) {
+    match OBJ_COLLECTION.write() {
+        Ok(mut collection) => {
+            collection.push(new_object);
+            println!("Raytracer Upd: Added new object to OBJ_COLLECTION.");
+        }
+        Err(e) => {
+            eprintln!(
+                "Raytracer Err: Failed to add a new object to OBJ_COLLECTION.\nFailed to get write lock: {:?}.",
+                e
+            );
         }
     }
 }
