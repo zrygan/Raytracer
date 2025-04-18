@@ -1,94 +1,126 @@
 # Raytracer
 
-By: Zhean Ganituen (zrygan). <br>
-Started: February 2025 <br>
-Last updated: April 2025 <br>
-
->❗**Notice** <br> <br>
-> This project is currently being rewritten from Python to Rust using [Macroquad](https://macroquad.rs/). <br>
-> The Python version is unmaintained as of April 2025 (however, working properly). <br>
-> The Rust version is in progress (see the [Rust Rewrite tree](https://github.com/zrygan/Raytracer/tree/rust-rewrite/src). <br>
+By: Zhean Ganituen (`zrygan`)  
+Started: February 2025  
+Last updated: April 2025  
 
 ## About
 
-A simple two-dimensional ray tracing simulation application.
+A simple two-dimensional ray tracing simulation application that visualizes light ray behavior through various optical elements.
 
-## How To 
-### Building your own Raytracer
-Simply clone the repository:
+## Getting Started
 
-```bash
-$ git clone https://github.com/zrygan/Raytracer.git
-```
+### Building the Rust Version
 
-Then, go to the directory and compile the project:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/zrygan/Raytracer.git
+   ```
 
-```bash
-$ cd Raytracer
+2. Navigate to the project directory:
+   ```bash
+   cd Raytracer
+   ```
 
-$ cargo build # you cal also do `$cargo run` to build and run
-```
+3. Build and run the project:
+   ```bash
+   cargo run
+   ```
+
+   Alternatively, you can build without running:
+   ```bash
+   cargo build
+   ```
+
+### Using the Legacy Python Version
+
+1. Clone the repository if you haven't already:
+   ```bash
+   git clone https://github.com/zrygan/Raytracer.git
+   ```
+
+2. Navigate to the Python directory:
+   ```bash
+   cd Raytracer/python
+   ```
+
+3. (Optional) Create a Python virtual environment:
+   ```bash
+   python -m venv venv
+   venv/Scripts/activate
+   ```
+
+4. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. Run the application:
+   ```bash
+   python main.py
+   ```
+
+## Controls
 
 ### Keybinds
 
-> The complete list of keybinds is available in [`globals.rs`](https://github.com/zrygan/Raytracer/blob/rust-rewrite/src/globals.rs), all the constants that are prefixed with `KEYB_` are keybinds.
+The complete list of keybinds is available in [`src/globals.rs`](src/globals.rs). All constants prefixed with `KEYB_` are keybinds.
 
-All objects created with keybinds will get default parameters.
+All objects are created at the cursor position with default parameters. Default parameters are defined in `globals.rs` as constants prefixed with `OBJC_`.
 
-> The complete list of default parameters is also in `globals.rs`, see all constants prefixed with `OBJC_`. **Future**: we may implement a way to have more options when adding Raytracer objects.
+| Key | Action |
+|-----|--------|
+| `o` | Create a simple circle object |
+| `i` | Create an isotropic emitter |
+| `c` | Create a collimated emitter |
+| `s` | Create a spotlight emitter |
+| `p` | Create a perfect absorber |
+| `backspace` | Delete object at cursor position |
+| `\` | Debug tool: show all objects in scene |
 
-Also, all objects will be created in the cursor position.
+## Features
 
-1. `o` : creates a simple circle object.
-2. `i` : creates an isotropic emitter object.
-3. `c` : creates a collimated emitter object.
-4. `s` : created a spotlight emitter object.
-5. `backspace` ; delete the object on the cursor.
-6. `\` : `debug tool`, show all objects on the scene
- 
+### Light Emitters
+- **Isotropic**: Emits light in all directions
+- **Collimated**: Emits parallel light rays
+- **Spotlight**: Emits a focused beam of light
+
+### Objects
+- **Circle**: Basic circular object
+- **Perfect Absorber**: Fully opaque object that absorbs all light
 
 ## Requirements
 
-* [Macroquad](https://macroquad.rs/)
-* [once_cell](https://docs.rs/once_cell/latest/once_cell/)
+This project requires:
+- [Rust](https://www.rust-lang.org/tools/install) (for the main version)
+- [Python 3.x](https://www.python.org/downloads/) (for the legacy version)
 
-> (*If this is not updated*) you may visit the (`Cargo.toml`)[https://github.com/zrygan/Raytracer/blob/rust-rewrite/Cargo.toml] file for the complete list of dependencies.
+### Dependencies
+- [Macroquad](https://macroquad.rs/) - Fast and simple game library for Rust
+- [once_cell](https://docs.rs/once_cell/latest/once_cell/) - Single-assignment cells for Rust
 
-There is no need to install these dependencies one-by-one since running the project (for the first time) would also download the dependencies.
-
-## Features
-* Light Emitters:
-    * Isometric
-    * Collimated
+All Rust dependencies will be automatically downloaded when building with Cargo.
 
 ## Documentation
 
-### Web Documentation
+### Online Documentation
 
-> Webpage removed, might re-add at a later time.
+You can access the documentation at:
+- [GitHub Pages](https://zrygan.github.io/Raytracer/)
+- [`docs/` directory](https://github.com/zrygan/Raytracer/tree/rust-rewrite/docs)
 
-You may go to the [`docs/`](https://github.com/zrygan/Raytracer/tree/rust-rewrite/docs) directory in the repository.
+### Building the Documentation Locally
 
-Alternatively (the easy way), you may visit the [Github pages](https://zrygan.github.io/Raytracer/) of this repository.
-
-### Building the Documentation
-
-You may build the code documentation by:
-
-1. Clone the repository
+Generate the code documentation:
 
 ```bash
-$ git clone https://github.com/zrygan/Raytracer.git
+git clone https://github.com/zrygan/Raytracer.git
+cd Raytracer
+cargo doc --no-deps
 ```
 
-2. Go to the Raytracer directory
+Then open `target/doc/raytracer/index.html` in your browser.
 
-```bash
-$ cd Raytracer
-```
+## License
 
-3. Create the `rustdoc`.
-
-```bash
-$ cargo doc --no-deps # --no-deps removes documentation for Raytracer's dependencies, remove this add needed.
-```
+This project is licensed under the [MIT License](LICENSE).

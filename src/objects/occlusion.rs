@@ -1,3 +1,8 @@
+//! Occlusion and shadowing
+//!
+//! author:         Zhean Ganituen
+//! last updated:   April 18, 2025
+
 use super::{absorber::Absorbers, behavior::RaytracerObjects, emitters::*, ray::ObjectRay};
 use crate::OBJ_COLLECTION;
 
