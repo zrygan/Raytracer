@@ -35,7 +35,7 @@ impl Drawable for Emitters {
     fn draw_object(&self) {
         match self {
             Emitters::EmitterIsotropic(e) => e.draw_object(),
-            Emitters::EmitterCollimated(e) => e.base_emitter.draw_object(),
+            Emitters::EmitterCollimated(e) => e.base_object.draw_object(),
             Emitters::EmitterSpotlight(e) => e.base_emitter.draw_object(),
         }
     }
@@ -58,9 +58,9 @@ impl Movable for Emitters {
                 obj.rays = init_isotropic_rays(pos_x, pos_y);
             }
             Emitters::EmitterCollimated(obj) => {
-                obj.base_emitter.base_object.pos_x = pos_x;
-                obj.base_emitter.base_object.pos_y = pos_y;
-                obj.base_emitter.rays = init_collimated_rays(
+                obj.base_object.base_object.pos_x = pos_x;
+                obj.base_object.base_object.pos_y = pos_y;
+                obj.base_object.rays = init_collimated_rays(
                     pos_x,
                     pos_y,
                     obj.orientation,
@@ -145,7 +145,7 @@ impl Drawable for EmitterIsotropic {
 #[derive(Clone, Debug)]
 pub struct EmitterCollimated {
     /// The underlying emitter providing basic functionality
-    pub base_emitter: EmitterIsotropic,
+    pub base_object: EmitterIsotropic,
     /// The angle (in radians) at which rays are emitted
     pub orientation: f32,
     /// The width of the beam of parallel rays
@@ -175,7 +175,7 @@ impl EmitterCollimated {
         collimated_beam_diameter: f32,
     ) -> Self {
         let new_emitter = EmitterCollimated {
-            base_emitter: EmitterIsotropic { base_object, rays },
+            base_object: EmitterIsotropic { base_object, rays },
             orientation,
             collimated_beam_diameter,
         };
