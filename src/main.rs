@@ -140,24 +140,22 @@ async fn main() {
         // If user is moving the cursor and is dragging an object,
         // move that object
         if mouse_delta != vec2(0.0, 0.0) && cursor_on_object_index.is_some() {
-            let mut raytracer_object = {
-                let collection = OBJ_COLLECTION.lock().unwrap();
-                collection[cursor_on_object_index.unwrap()].clone()
-            };
-
-            match &mut raytracer_object {
-                RaytracerObjects::ObjectCircle(object) => object.move_object(mouse_x, mouse_y),
-                RaytracerObjects::Emitters(emitter) => match emitter {
-                    Emitters::Emitter(object) => object.move_object(mouse_x, mouse_y),
-                    Emitters::EmitterCollimated(object) => object
-                        .base_emitter
-                        .base_object
-                        .move_object(mouse_x, mouse_y),
-                    Emitters::EmitterSpotlight(object) => object
-                        .base_emitter
-                        .base_object
-                        .move_object(mouse_x, mouse_y),
-                },
+            let mut collection = OBJ_COLLECTION.lock().unwrap();
+            if let Some(raytracer_object) = collection.get_mut(cursor_on_object_index.unwrap()) {
+                match raytracer_object {
+                    RaytracerObjects::ObjectCircle(object) => object.move_object(mouse_x, mouse_y),
+                    RaytracerObjects::Emitters(emitter) => match emitter {
+                        Emitters::Emitter(object) => object.move_object(mouse_x, mouse_y),
+                        Emitters::EmitterCollimated(object) => object
+                            .base_emitter
+                            .base_object
+                            .move_object(mouse_x, mouse_y),
+                        Emitters::EmitterSpotlight(object) => object
+                            .base_emitter
+                            .base_object
+                            .move_object(mouse_x, mouse_y),
+                    },
+                }
             }
         }
 
