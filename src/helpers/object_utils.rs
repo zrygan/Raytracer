@@ -5,7 +5,7 @@
 //! coordinate system operations.
 //!
 //! author:         Zhean Ganituen (zrygan)
-//! last updated:   April 16, 2025
+//! last updated:   April 18, 2025
 
 use crate::OBJ_COLLECTION;
 use crate::RaytracerObjects;
@@ -44,6 +44,30 @@ pub fn linspace(x1: f32, x2: f32, sample_size: i32) -> Option<Vec<f32>> {
     Some(points)
 }
 
+/// Initializes or reinitializes all rays for all emitter objects in the scene
+///
+/// This function iterates through the global object collection and updates
+/// the rays for each emitter based on its current position and properties.
+/// It's called whenever an object is created, moved, or deleted to ensure
+/// ray positions remain consistent with their emitters.
+///
+/// # Thread Safety
+///
+/// This function acquires a write lock on the `OBJ_COLLECTION` global,
+/// ensuring thread-safe updates to the ray data.
+///
+/// # Ray Types
+///
+/// Each emitter type has its rays initialized differently:
+/// - Isotropic emitters create rays radiating in all directions
+/// - Collimated emitters create parallel rays
+/// - Spotlight emitters create a cone of rays
+///
+/// # Performance Considerations
+///
+/// This operation can be computationally expensive when many emitters exist
+/// in the scene, so it should only be called when necessary (after object
+/// creation or movement).
 pub fn init_all_rays() {
     let mut collection = OBJ_COLLECTION.write().unwrap();
 
@@ -75,6 +99,38 @@ pub fn init_all_rays() {
     }
 }
 
+/// Adds a new object to the global object collection
+///
+/// This function safely adds a new object to the raytracer's shared object collection
+/// by acquiring a write lock and appending the object to the collection vector.
+///
+/// # Arguments
+///
+/// * `new_object` - The raytracer object to add to the global collection
+///
+/// # Thread Safety
+///
+/// This function acquires a write lock on the `OBJ_COLLECTION` global,
+/// ensuring thread-safe addition of new objects.
+///
+/// # Error Handling
+///
+/// If acquiring the write lock fails, an error message is printed to stderr
+/// and the object is not added to the collection.
+///
+/// # Example
+///
+/// ```
+/// use crate::objects::circle::ObjectCircle;
+/// use crate::objects::behavior::RaytracerObjects;
+/// use crate::helpers::object_utils::add_object_to_collection;
+///
+/// // Create a new circle
+/// let circle = ObjectCircle::new(100.0, 100.0, 50.0);
+///
+/// // Add it to the global collection
+/// add_object_to_collection(RaytracerObjects::ObjectCircle(circle));
+/// ```
 pub fn add_object_to_collection(new_object: RaytracerObjects) {
     match OBJ_COLLECTION.write() {
         Ok(mut collection) => {

@@ -1,5 +1,43 @@
+//! Utility functions for interacting with scene objects
+//!
+//! This module provides helper functions for common operations on the raytracer's
+//! object collection, including object selection, removal, and debugging.
+//!
+//! The functions in this module primarily deal with:
+//! - Finding objects at specific positions
+//! - Removing objects from the scene
+//! - Debugging the scene state
+//!
+//! author:         Zhean Ganituen
+//! last updated:   April 18, 2025
+
 use crate::globals::{OBJ_COLLECTION, OBJC_MOUSE_EPSILON, OBJD_CIRCLE_RADIUS};
 
+/// Removes an object from the scene at the specified index
+///
+/// This function provides safe removal of objects from the global collection
+/// by acquiring a write lock and validating the index before removal.
+///
+/// # Arguments
+///
+/// * `index` - The index of the object to remove from the global collection
+///
+/// # Thread Safety
+///
+/// This function acquires a write lock on the `OBJ_COLLECTION` global,
+/// so it's safe to call from multiple threads.
+///
+/// # Examples
+///
+/// ```
+/// // Remove the first object in the collection
+/// remove_object_at_index(0);
+///
+/// // Remove an object found at the cursor position
+/// if let Some(index) = object_at_cursor(mouse_x, mouse_y) {
+///     remove_object_at_index(index);
+/// }
+/// ```
 pub fn remove_object_at_index(index: usize) {
     let mut temp = OBJ_COLLECTION.write().unwrap();
     if (index) < temp.len() {
@@ -9,6 +47,26 @@ pub fn remove_object_at_index(index: usize) {
     }
 }
 
+/// Finds the first object located at or near the specified cursor position
+///
+/// This function checks all objects in the scene to find one that contains the
+/// given cursor position, using a proximity detection with the global epsilon value.
+///
+/// # Arguments
+///
+/// * `mouse_x` - The x-coordinate of the cursor
+/// * `mouse_y` - The y-coordinate of the cursor
+///
+/// # Returns
+///
+/// * `Some(index)` - The index of the first object found at the cursor position
+/// * `None` - If no object is found within the specified epsilon of the cursor
+///
+/// # Selection Logic
+///
+/// Objects are considered "at the cursor" if the distance between the cursor
+/// and object's center is less than `OBJC_MOUSE_EPSILON + OBJD_CIRCLE_RADIUS`,
+/// which accounts for both the cursor's proximity tolerance and the object's size.
 pub fn object_at_cursor(mouse_x: f32, mouse_y: f32) -> Option<usize> {
     let temp = OBJ_COLLECTION.read().unwrap();
 
@@ -25,6 +83,38 @@ pub fn object_at_cursor(mouse_x: f32, mouse_y: f32) -> Option<usize> {
     None
 }
 
+/// Prints details of all objects in the scene to the console
+///
+/// This function is primarily a debugging tool that outputs a formatted
+/// representation of every object in the global collection, including their
+/// indices and full Debug representations.
+///
+/// # Usage
+///
+/// This function is intended for debugging only and may produce extensive output
+/// for scenes with many objects.
+///
+/// # Example Output
+///
+/// ```text
+/// RaytracerObject: 0
+/// ObjectCircle(
+///     ObjectCircle {
+///         pos_x: 100.0,
+///         pos_y: 150.0,
+///         radius: 50.0,
+///     },
+/// )
+/// RaytracerObject: 1
+/// Emitters(
+///     EmitterIsotropic(
+///         EmitterIsotropic {
+///             base_object: ObjectCircle { ... },
+///             rays: [...],
+///         },
+///     ),
+/// )
+/// ```
 pub fn print_all_objects() {
     for (index, obj) in OBJ_COLLECTION.read().unwrap().iter().enumerate() {
         println!("RaytracerObject: {}", index);

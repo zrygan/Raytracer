@@ -3,6 +3,7 @@
 By: Zhean Ganituen (`zrygan`)  
 Started: February 2025  
 Last updated: April 2025  
+Version: 1.0
 
 ## About
 

@@ -178,6 +178,27 @@ pub fn init_collimated_rays(
     rays
 }
 
+/// Creates a collection of rays arranged in a spotlight pattern.
+///
+/// This function generates rays that originate from a single point and spread out
+/// in a cone shape, similar to a spotlight or flashlight beam. The rays are evenly
+/// distributed within the specified cone angle.
+///
+/// # Arguments
+///
+/// * `start_x` - X coordinate of the emitter's center point
+/// * `start_y` - Y coordinate of the emitter's center point
+/// * `orientation` - The central angle (in radians) at which the spotlight is pointing
+/// * `spotlight_beam_angle` - The total angular spread of the spotlight cone (in radians)
+///
+/// # Returns
+///
+/// A vector of `ObjectRay`s arranged in a cone pattern from the given point
+///
+/// # Panics
+///
+/// Panics if `OBJC_MAX_RAY_COUNT` is less than 2, as at least two rays are needed to
+/// define a spotlight beam (one at each edge of the cone).
 pub fn init_spotlight_rays(
     start_x: f32,
     start_y: f32,
@@ -186,8 +207,11 @@ pub fn init_spotlight_rays(
 ) -> Vec<ObjectRay> {
     let mut rays: Vec<ObjectRay> = Vec::with_capacity(OBJC_MAX_RAY_COUNT as usize);
 
-    // generate angles that are linearly spaced
+    // Calculate the half-angle to evenly distribute rays on both sides of central orientation
     let half_angle = spotlight_beam_angle / 2.0;
+
+    // Generate a linear range of angles from (orientation - half_angle) to (orientation + half_angle)
+    // These will represent the directions of each ray in the spotlight cone
     let angles = linspace(
         orientation - half_angle,
         orientation + half_angle,
@@ -195,10 +219,13 @@ pub fn init_spotlight_rays(
     )
     .expect("Number of rays for spotlight must be at least 2.");
 
+    // Create a ray for each angle in the spotlight cone
     for angle in angles {
         rays.push(ObjectRay::new(
             start_x,
             start_y,
+            // Extend ray to screen edge in the direction of the angle
+            // Note: Cosine gives x-component, and negative sine gives y-component (due to y-axis orientation)
             start_x + screen_width() * angle.cos(),
             start_y + screen_height() * (-1.0 * angle.sin()),
             OBJD_RAY_WIDTH,
