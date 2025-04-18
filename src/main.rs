@@ -65,10 +65,9 @@ async fn main() {
         APP_NAME, APP_VERSION, APP_AUTHOR, APP_GITHUB
     );
 
-    // Clear the screen with the background color
-    clear_background(WINDOW_BG_COLOR);
-
     loop {
+        // Clear the screen with the background color
+        clear_background(WINDOW_BG_COLOR);
         (mouse_x, mouse_y) = mouse_position();
 
         // Handle user input for object creation

@@ -40,7 +40,7 @@ pub fn add_object_to_scene(object_type: &str) {
 
     if let "circle_none" = object_type {
         // Create a basic circle object at the mouse position
-        ObjectCircle::new(mouse_x, mouse_y, OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS);
+        ObjectCircle::new_and_add(mouse_x, mouse_y, OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS);
     } else if let "emitter_isotropic" = object_type {
         // Create an isotropic emitter (radiating in all directions)
         Emitter::new(

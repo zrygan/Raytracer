@@ -133,6 +133,9 @@ impl Movable for Emitter {
     fn move_object(&mut self, pos_x: f32, pos_y: f32) {
         self.base_object.pos_x = pos_x;
         self.base_object.pos_y = pos_y;
+
+        // when we move an emitter we need to "undraw" the rays at its current
+        // position
     }
 }
 
