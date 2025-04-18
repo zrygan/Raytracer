@@ -8,7 +8,7 @@
 //! author:         Zhean Ganituen (zrygan)
 //! last updated:   April 16, 2025
 
-use super::behavior::{Drawable, Movable};
+use super::behavior::{Drawable, Movable, VariableSize};
 
 use macroquad::prelude::*;
 
@@ -83,5 +83,13 @@ impl Movable for ObjectCircle {
         // Might cause an error if an object without the Drawable trait moves
         // TODO: @zrygan
         self.draw_object();
+    }
+}
+
+impl VariableSize for ObjectCircle {
+    fn change_radius(&mut self, factor: f32) {
+        if self.radius >= 0.01 {
+            self.radius += factor;
+        }
     }
 }

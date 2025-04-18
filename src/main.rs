@@ -21,7 +21,7 @@ use macroquad::prelude::*;
 use macroquad::time::draw_fps;
 use objects::{behavior::*, occlusion::check_for_occlusion};
 use std::{thread::sleep, time::Duration};
-use user_input::actions::add_object_to_scene;
+use user_input::{add_to_scene_actions::add_object_to_scene, emitter_actions::object_change_size};
 
 /// Configures the application window settings.
 ///
@@ -120,10 +120,11 @@ async fn main() {
                 add_object_to_scene("emitter_spotlight");
                 re_init_rays = true;
                 collection_size += 1;
+            }
             // ============================================================
             // =============== ABSORBERS
             // ============================================================
-            } else if is_key_pressed(KEYB_ABSORBER_PERFECT) {
+            else if is_key_pressed(KEYB_ABSORBER_PERFECT) {
                 println!(
                     "Raytracer Upd: Perfect absorber object created at {}, {}",
                     mouse_x, mouse_y
@@ -131,10 +132,23 @@ async fn main() {
                 add_object_to_scene("absorber_perfect");
                 re_init_rays = true;
                 collection_size += 1;
+            }
+            // ============================================================
+            // =============== ENLARGE AND REDUCE
+            // ============================================================
+            else if is_key_down(KEYB_RTC_ENLARGE) {
+                println!("Raytracer Upd: Enlarged object at {}, {}", mouse_x, mouse_y);
+                object_change_size(mouse_x, mouse_y, OBJD_ENLARGE_REDUCE_FACTOR);
+                re_init_rays = true;
+            } else if is_key_down(KEYB_RTC_REDUCE) {
+                println!("Raytracer Upd: Reduced object at {}, {}", mouse_x, mouse_y);
+                object_change_size(mouse_x, mouse_y, -OBJD_ENLARGE_REDUCE_FACTOR);
+                re_init_rays = true;
+            }
             // ============================================================
             // =============== DEBUG AND OTHER KEYBINDS
             // ============================================================
-            } else if is_key_pressed(KEYB_DELETE) && collection_size >= 1 {
+            else if is_key_pressed(KEYB_DELETE) && collection_size >= 1 {
                 if let Some(i) = object_at_cursor(mouse_x, mouse_y) {
                     remove_object_at_index(i);
                     println!("Raytracer Upd: Deleted object at {}, {}", mouse_x, mouse_y);

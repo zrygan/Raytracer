@@ -9,7 +9,7 @@
 
 use macroquad::shapes::draw_circle;
 
-use super::behavior::{Drawable, Movable};
+use super::behavior::{Drawable, Movable, VariableSize};
 use super::circle::ObjectCircle;
 use super::ray::{ObjectRay, init_collimated_rays, init_isotropic_rays, init_spotlight_rays};
 
@@ -71,6 +71,34 @@ impl Movable for Emitters {
                 obj.base_emitter.base_object.pos_y = pos_y;
                 obj.base_emitter.rays =
                     init_spotlight_rays(pos_x, pos_y, obj.orientation, obj.spotlight_beam_angle);
+            }
+        }
+    }
+}
+
+impl VariableSize for Emitters {
+    fn change_radius(&mut self, factor: f32) {
+        match self {
+            Emitters::EmitterIsotropic(obj) => {
+                if obj.base_object.radius >= 30. && factor < 0. {
+                    obj.base_object.radius += factor
+                } else if factor > 0. {
+                    obj.base_object.radius += factor;
+                }
+            }
+            Emitters::EmitterCollimated(obj) => {
+                if obj.base_emitter.base_object.radius >= 30. && factor < 0. {
+                    obj.base_emitter.base_object.radius += factor
+                } else if factor > 0. {
+                    obj.base_emitter.base_object.radius += factor;
+                }
+            }
+            Emitters::EmitterSpotlight(obj) => {
+                if obj.base_emitter.base_object.radius >= 30. && factor < 0. {
+                    obj.base_emitter.base_object.radius += factor
+                } else if factor > 0. {
+                    obj.base_emitter.base_object.radius += factor;
+                }
             }
         }
     }
