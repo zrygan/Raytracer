@@ -134,7 +134,7 @@ async fn main() {
         }
 
         // If the user is not moving an object, remove dragging_index
-        if !is_mouse_button_down(MouseButton::Left) & (dragged_index.is_some()) {
+        if !is_mouse_button_down(MouseButton::Left) && (dragged_index.is_some()) {
             println!("Raytracer Upd: Stopped moving object.");
             dragged_index = None;
         }
