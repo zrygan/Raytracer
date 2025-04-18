@@ -18,8 +18,9 @@ use helpers::{
     object_utils::init_all_rays,
 };
 use macroquad::prelude::*;
+use macroquad::time::draw_fps;
 use objects::{behavior::*, occlusion::check_for_occlusion};
-use std::thread::sleep;
+use std::{thread::sleep, time::Duration};
 use user_input::actions::add_object_to_scene;
 
 /// Configures the application window settings.
@@ -67,6 +68,8 @@ async fn main() {
     let mut mouse_y: f32;
     let mut mouse_delta: Vec2 = vec2(0.0, 0.0);
 
+    let mut ft;
+
     // print app information
     println!(
         "{} ver. {}\nBy: {}\nSource Available on: {}",
@@ -74,8 +77,10 @@ async fn main() {
     );
 
     loop {
+        ft = get_frame_time();
         // Clear the screen with the background color
         clear_background(WINDOW_BG_COLOR);
+        draw_fps();
         (mouse_x, mouse_y) = mouse_position();
 
         // Handle user input for object creation
@@ -196,8 +201,10 @@ async fn main() {
 
         mouse_delta = mouse_delta_position();
 
-        if WINDOW_SLEEP_BOOLEAN {
-            sleep(WINDOW_SLEEP_DURATION);
+        if (ft < WINDOW_FRAME_RATE) && WINDOW_USE_FRAME_RATE {
+            sleep(Duration::from_millis(
+                ((WINDOW_FRAME_RATE - ft) * 1000.) as u64,
+            ));
         }
 
         next_frame().await;
