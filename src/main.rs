@@ -13,7 +13,7 @@ mod objects;
 mod user_input;
 
 use globals::*;
-use helpers::utils::remove_object_at_index;
+use helpers::utils::{object_at_cursor, print_all_objects, remove_object_at_index};
 use macroquad::prelude::*;
 use objects::{behavior::*, emitters::*};
 use user_input::actions::add_object_to_scene;
@@ -54,7 +54,7 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     // main function variables
-    let mut dragged_index: Option<usize> = None;
+    let mut cursor_on_object_index: Option<usize> = None;
     let mut mouse_x: f32;
     let mut mouse_y: f32;
     let mut mouse_delta: Vec2 = vec2(0.0, 0.0);
@@ -97,6 +97,15 @@ async fn main() {
                     mouse_x, mouse_y
                 );
                 add_object_to_scene("emitter_spotlight");
+            } else if is_key_pressed(KEYB_DELETE) {
+                if let Some(i) = object_at_cursor(mouse_x, mouse_y) {
+                    remove_object_at_index(i);
+                    println!("Raytracer Upd: Deleted object at {}, {}", mouse_x, mouse_y);
+                };
+            } else if is_key_pressed(KEYB_DEBUG_SHOW_ALL_OBJ) {
+                println!("Raytracer Debug: Showing all objects inside OBJ_COLLECTION.");
+                print_all_objects();
+                println!("Raytracer Debug: Done showing all objects in OBJ_COLLECTION.");
             }
 
             // Draw all objects in the global collection
@@ -119,32 +128,21 @@ async fn main() {
 
         // Check if the user wants to move an object
         if is_mouse_button_down(MouseButton::Left) {
-            let temp = OBJ_COLLECTION.lock().unwrap();
-
-            for (index, object) in temp.iter().enumerate() {
-                let (x, y) = object.get_pos();
-                if (mouse_x - x).abs() < OBJC_MOUSE_EPSILON + OBJD_CIRCLE_RADIUS
-                    && (mouse_y - y).abs() < OBJC_MOUSE_EPSILON + OBJD_CIRCLE_RADIUS
-                {
-                    dragged_index = Some(index);
-                    println!("Raytracer Upd: Moving object {:#?}", object);
-                    break;
-                }
-            }
+            cursor_on_object_index = object_at_cursor(mouse_x, mouse_y);
         }
 
         // If the user is not moving an object, remove dragging_index
-        if !is_mouse_button_down(MouseButton::Left) && (dragged_index.is_some()) {
+        if !is_mouse_button_down(MouseButton::Left) && (cursor_on_object_index.is_some()) {
             println!("Raytracer Upd: Stopped moving object.");
-            dragged_index = None;
+            cursor_on_object_index = None;
         }
 
         // If user is moving the cursor and is dragging an object,
         // move that object
-        if mouse_delta != vec2(0.0, 0.0) && dragged_index.is_some() {
+        if mouse_delta != vec2(0.0, 0.0) && cursor_on_object_index.is_some() {
             let mut raytracer_object = {
                 let collection = OBJ_COLLECTION.lock().unwrap();
-                collection[dragged_index.unwrap()].clone()
+                collection[cursor_on_object_index.unwrap()].clone()
             };
 
             match &mut raytracer_object {

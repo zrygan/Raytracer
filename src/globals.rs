@@ -74,7 +74,9 @@ pub const OBJD_SPOTLIGHT_ORIENTATION: f32 = 0.0; // in radians
 ///
 /// These constants map keyboard keys to specific actions in the raytracer,
 /// making it easy to modify keybindings from a central location.
+pub const KEYB_DELETE: KeyCode = KeyCode::Backspace;
 pub const KEYB_SIMPLE_CIRCLE: KeyCode = KeyCode::O;
 pub const KEYB_EMITTER_ISOTROPIC: KeyCode = KeyCode::I;
 pub const KEYB_EMITTER_COLLIMATED: KeyCode = KeyCode::C;
 pub const KEYB_EMITTER_SPOTLIGHT: KeyCode = KeyCode::S;
+pub const KEYB_DEBUG_SHOW_ALL_OBJ: KeyCode = KeyCode::Backslash;
