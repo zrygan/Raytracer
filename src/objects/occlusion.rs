@@ -1,6 +1,5 @@
-use crate::globals::OBJ_COLLECTION;
-
 use super::{absorber::Absorbers, behavior::RaytracerObjects, emitters::*, ray::ObjectRay};
+use crate::OBJ_COLLECTION;
 
 pub fn occlusion(occluder: &Absorbers, ray: &ObjectRay) -> Option<(f32, f32)> {
     // get the slope of the ray
@@ -55,24 +54,21 @@ pub fn occlusion(occluder: &Absorbers, ray: &ObjectRay) -> Option<(f32, f32)> {
 }
 
 pub fn check_for_occlusion() {
-    let mut temp = OBJ_COLLECTION.lock().unwrap();
+    let mut collection = OBJ_COLLECTION.lock().unwrap();
 
-    // First, collect the absorber objects for reference
-    let absorbers: Vec<_> = temp
+    let absorbers: Vec<Absorbers> = collection
         .iter()
-        .filter_map(|a| {
-            if let RaytracerObjects::Absorbers(o) = a {
-                Some(o.clone()) // Clone to avoid borrowing issues
+        .filter_map(|obj| {
+            if let RaytracerObjects::Absorbers(absorber) = obj {
+                Some(absorber.clone())
             } else {
                 None
             }
         })
         .collect();
 
-    // Process each object that contains rays
-    for obj_index in 0..temp.len() {
-        if let RaytracerObjects::Emitters(emitter) = &mut temp[obj_index] {
-            // Get a mutable reference to the rays
+    for obj in collection.iter_mut() {
+        if let RaytracerObjects::Emitters(emitter) = obj {
             let rays = match emitter {
                 Emitters::EmitterIsotropic(o) => &mut o.rays,
                 Emitters::EmitterCollimated(o) => &mut o.base_emitter.rays,

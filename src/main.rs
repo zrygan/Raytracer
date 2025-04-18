@@ -13,9 +13,14 @@ mod objects;
 mod user_input;
 
 use globals::*;
-use helpers::action_utils::{object_at_cursor, print_all_objects, remove_object_at_index};
+use helpers::{
+    action_utils::{object_at_cursor, print_all_objects, remove_object_at_index},
+    object_utils::init_all_rays,
+};
 use macroquad::prelude::*;
+use macroquad::time::draw_fps;
 use objects::{behavior::*, occlusion::check_for_occlusion};
+use std::{thread::sleep, time::Duration};
 use user_input::actions::add_object_to_scene;
 
 /// Configures the application window settings.
@@ -53,11 +58,17 @@ fn window_conf() -> Conf {
 /// attribute, which initializes the Macroquad rendering environment.
 #[macroquad::main(window_conf)]
 async fn main() {
-    // main function variables
+    // if any object is moved, set this to true this is for occlusion.
+    // so that we dont re-initialize all rays per frame, only when an absorber
+    // is moved.
+    let mut re_init_rays: bool = false;
+
     let mut cursor_on_object_index: Option<usize> = None;
     let mut mouse_x: f32;
     let mut mouse_y: f32;
     let mut mouse_delta: Vec2 = vec2(0.0, 0.0);
+
+    let mut ft;
 
     // print app information
     println!(
@@ -66,47 +77,64 @@ async fn main() {
     );
 
     loop {
+        ft = get_frame_time();
         // Clear the screen with the background color
         clear_background(WINDOW_BG_COLOR);
+        draw_fps();
         (mouse_x, mouse_y) = mouse_position();
 
         // Handle user input for object creation
         if OBJC_MAX_OBJ_COUNT as usize > OBJ_COLLECTION.lock().iter().len() {
+            // ============================================================
+            // =============== EMITTERS
+            // ============================================================
             if is_key_pressed(KEYB_SIMPLE_CIRCLE) {
                 println!(
                     "Raytracer Upd: Simple circle created at {}, {}",
                     mouse_x, mouse_y
                 );
                 add_object_to_scene("circle_none");
+                re_init_rays = true;
             } else if is_key_pressed(KEYB_EMITTER_ISOTROPIC) {
                 println!(
                     "Raytracer Upd: Isotropic emitter object created at {}, {}",
                     mouse_x, mouse_y
                 );
                 add_object_to_scene("emitter_isotropic");
+                re_init_rays = true;
             } else if is_key_pressed(KEYB_EMITTER_COLLIMATED) {
                 println!(
                     "Raytracer Upd: Collimated emitter object created at {}, {}",
                     mouse_x, mouse_y
                 );
                 add_object_to_scene("emitter_collimated");
+                re_init_rays = true;
             } else if is_key_pressed(KEYB_EMITTER_SPOTLIGHT) {
                 println!(
                     "Raytracer Upd: Spotlight emitter object created at {}, {}",
                     mouse_x, mouse_y
                 );
                 add_object_to_scene("emitter_spotlight");
-            } else if is_key_pressed(KEYB_DELETE) {
-                if let Some(i) = object_at_cursor(mouse_x, mouse_y) {
-                    remove_object_at_index(i);
-                    println!("Raytracer Upd: Deleted object at {}, {}", mouse_x, mouse_y);
-                };
+                re_init_rays = true;
+            // ============================================================
+            // =============== ABSORBERS
+            // ============================================================
             } else if is_key_pressed(KEYB_ABSORBER_PERFECT) {
                 println!(
                     "Raytracer Upd: Perfect absorber object created at {}, {}",
                     mouse_x, mouse_y
                 );
                 add_object_to_scene("absorber_perfect");
+                re_init_rays = true;
+            // ============================================================
+            // =============== DEBUG AND OTHER KEYBINDS
+            // ============================================================
+            } else if is_key_pressed(KEYB_DELETE) {
+                if let Some(i) = object_at_cursor(mouse_x, mouse_y) {
+                    remove_object_at_index(i);
+                    println!("Raytracer Upd: Deleted object at {}, {}", mouse_x, mouse_y);
+                };
+                re_init_rays = true;
             } else if is_key_pressed(KEYB_DEBUG_SHOW_ALL_OBJ) {
                 println!("Raytracer Debug: Showing all objects inside OBJ_COLLECTION.");
                 print_all_objects();
@@ -138,13 +166,23 @@ async fn main() {
                 match raytracer_object {
                     RaytracerObjects::ObjectCircle(object) => object.move_object(mouse_x, mouse_y),
                     RaytracerObjects::Emitters(object) => object.move_object(mouse_x, mouse_y),
-                    RaytracerObjects::Absorbers(object) => object.move_object(mouse_x, mouse_y),
+                    RaytracerObjects::Absorbers(object) => {
+                        object.move_object(mouse_x, mouse_y);
+                    }
                 }
+                re_init_rays = true;
             }
         }
 
-        // Check for occlusion
-        check_for_occlusion();
+        if re_init_rays {
+            // re-initialize all rays
+            init_all_rays();
+
+            // Check for occlusion
+            check_for_occlusion();
+
+            re_init_rays = false;
+        }
 
         // Draw all objects in the global collection
         for r_obj in OBJ_COLLECTION.lock().unwrap().iter() {
@@ -163,7 +201,12 @@ async fn main() {
 
         mouse_delta = mouse_delta_position();
 
-        // Wait for the next frame
+        if (ft < WINDOW_FRAME_RATE) && WINDOW_USE_FRAME_RATE {
+            sleep(Duration::from_millis(
+                ((WINDOW_FRAME_RATE - ft) * 1000.) as u64,
+            ));
+        }
+
         next_frame().await;
     }
 }

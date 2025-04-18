@@ -27,6 +27,8 @@ pub const APP_GITHUB: &str = "https://github.com/zrygan/raytracer";
 pub const WINDOW_HEIGHT: i32 = 800;
 pub const WINDOW_WIDTH: i32 = 600;
 pub const WINDOW_BG_COLOR: Color = Color::new(0.00, 0.00, 0.00, 1.00); // Black
+pub const WINDOW_USE_FRAME_RATE: bool = true;
+pub const WINDOW_FRAME_RATE: f32 = 1. / 45.;
 
 /// Standard Colors
 ///
@@ -39,8 +41,8 @@ pub const CORNFLOWER_BLUE: Color = Color::new(0.39, 0.58, 0.92, 1.00);
 /// display quality options and window properties.
 pub const MACROQUAD_HIGH_DPI: bool = false;
 pub const MACROQUAD_FULLSCREEN: bool = false;
-pub const MACROQUAD_SAMPLE_COUNT: i32 = 0; // MSAA sample count
-pub const MACROQUAD_RESIZEABLE: bool = false;
+pub const MACROQUAD_SAMPLE_COUNT: i32 = 3; // MSAA sample count
+pub const MACROQUAD_RESIZEABLE: bool = true;
 
 /// Raytracer Object Collection
 ///

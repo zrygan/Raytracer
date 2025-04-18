@@ -7,6 +7,11 @@
 //! author:         Zhean Ganituen (zrygan)
 //! last updated:   April 16, 2025
 
+use crate::OBJ_COLLECTION;
+use crate::RaytracerObjects;
+use crate::objects::emitters::Emitters;
+use crate::objects::ray::{init_collimated_rays, init_isotropic_rays, init_spotlight_rays};
+
 /// Gets a set of points form x1 to x2 that are linearly spaces. That is, for
 /// every point xi from the set of points, the distance from xi to x(i+1) for
 /// any i is equal.
@@ -37,4 +42,35 @@ pub fn linspace(x1: f32, x2: f32, sample_size: i32) -> Option<Vec<f32>> {
     }
 
     Some(points)
+}
+
+pub fn init_all_rays() {
+    let mut collection = OBJ_COLLECTION.lock().unwrap();
+
+    // Iterate through the objects directly
+    for obj in collection.iter_mut() {
+        if let RaytracerObjects::Emitters(emitter_enum) = obj {
+            match emitter_enum {
+                Emitters::EmitterIsotropic(e) => {
+                    e.rays = init_isotropic_rays(e.base_object.pos_x, e.base_object.pos_y)
+                }
+                Emitters::EmitterCollimated(e) => {
+                    e.base_emitter.rays = init_collimated_rays(
+                        e.base_emitter.base_object.pos_x,
+                        e.base_emitter.base_object.pos_y,
+                        e.orientation,
+                        e.collimated_beam_diameter,
+                    )
+                }
+                Emitters::EmitterSpotlight(e) => {
+                    e.base_emitter.rays = init_spotlight_rays(
+                        e.base_emitter.base_object.pos_x,
+                        e.base_emitter.base_object.pos_y,
+                        e.orientation,
+                        e.spotlight_beam_angle,
+                    )
+                }
+            }
+        }
+    }
 }
