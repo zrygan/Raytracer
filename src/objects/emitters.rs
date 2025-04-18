@@ -1,11 +1,11 @@
-//! EmitterIsotropic objects initialization and behaviors
+//! Emitter objects initialization and behaviors
 //!
 //! This module provides light emitter implementations for the raytracer system.
 //! It defines three types of emitters: isotropic (radiating in all directions),
 //! collimated (parallel rays, like a laser), and spotlight (cone-shaped beam).
 //!
 //! author:         Zhean Ganituen
-//! last updated:   April 17, 2025
+//! last updated:   April 18, 2025
 
 use macroquad::shapes::draw_circle;
 

@@ -5,7 +5,7 @@
 //! It serves as the entry point and orchestrator for the entire application.
 //!
 //! author:         Zhean Ganituen (zrygan)
-//! last updated:   April 17, 2025
+//! last updated:   April 18, 2025
 
 mod globals;
 mod helpers;
