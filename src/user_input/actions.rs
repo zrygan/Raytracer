@@ -10,6 +10,7 @@ use crate::globals::{
     OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS, OBJD_COLLIMATED_BEAM_DIAMETER,
     OBJD_COLLIMATED_ORIENTATION, OBJD_SPOTLIGHT_BEAM_ANGLE, OBJD_SPOTLIGHT_ORIENTATION,
 };
+use crate::objects::absorber::AbsorberPerfect;
 use crate::objects::circle::ObjectCircle;
 use crate::objects::emitters::{EmitterCollimated, EmitterIsotropic, EmitterSpotlight};
 use crate::objects::ray::{init_collimated_rays, init_isotropic_rays, init_spotlight_rays};
@@ -73,5 +74,13 @@ pub fn add_object_to_scene(object_type: &str) {
             OBJD_SPOTLIGHT_ORIENTATION,
             OBJD_SPOTLIGHT_BEAM_ANGLE,
         );
+    } else if let "absorber_perfect" = object_type {
+        // Create a perfect absorber (full opaque)
+        AbsorberPerfect::new(ObjectCircle::new(
+            mouse_x,
+            mouse_y,
+            OBJD_CIRCLE_FILL,
+            OBJD_CIRCLE_RADIUS,
+        ));
     }
 }

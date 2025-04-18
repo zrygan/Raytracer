@@ -5,7 +5,7 @@
 //! It serves as the entry point and orchestrator for the entire application.
 //!
 //! author:         Zhean Ganituen (zrygan)
-//! last updated:   April 17, 2025
+//! last updated:   April 18, 2025
 
 mod globals;
 mod helpers;
@@ -15,7 +15,7 @@ mod user_input;
 use globals::*;
 use helpers::action_utils::{object_at_cursor, print_all_objects, remove_object_at_index};
 use macroquad::prelude::*;
-use objects::behavior::*;
+use objects::{behavior::*, occlusion::check_for_occlusion};
 use user_input::actions::add_object_to_scene;
 
 /// Configures the application window settings.
@@ -101,6 +101,12 @@ async fn main() {
                     remove_object_at_index(i);
                     println!("Raytracer Upd: Deleted object at {}, {}", mouse_x, mouse_y);
                 };
+            } else if is_key_pressed(KEYB_ABSORBER_PERFECT) {
+                println!(
+                    "Raytracer Upd: Perfect absorber object created at {}, {}",
+                    mouse_x, mouse_y
+                );
+                add_object_to_scene("absorber_perfect");
             } else if is_key_pressed(KEYB_DEBUG_SHOW_ALL_OBJ) {
                 println!("Raytracer Debug: Showing all objects inside OBJ_COLLECTION.");
                 print_all_objects();
@@ -132,9 +138,13 @@ async fn main() {
                 match raytracer_object {
                     RaytracerObjects::ObjectCircle(object) => object.move_object(mouse_x, mouse_y),
                     RaytracerObjects::Emitters(object) => object.move_object(mouse_x, mouse_y),
+                    RaytracerObjects::Absorbers(object) => object.move_object(mouse_x, mouse_y),
                 }
             }
         }
+
+        // Check for occlusion
+        check_for_occlusion();
 
         // Draw all objects in the global collection
         for r_obj in OBJ_COLLECTION.lock().unwrap().iter() {
@@ -143,6 +153,9 @@ async fn main() {
                     object.draw_object();
                 }
                 RaytracerObjects::Emitters(object) => {
+                    object.draw_object();
+                }
+                RaytracerObjects::Absorbers(object) => {
                     object.draw_object();
                 }
             }

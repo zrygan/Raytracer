@@ -5,8 +5,9 @@
 //! It serves as the foundation for the object behavior system in the raytracer.
 //!
 //! author:         Zhean Ganituen (zrygan)
-//! last updated:   April 17, 2025
+//! last updated:   April 18, 2025
 
+use super::absorber::Absorbers;
 use super::circle::ObjectCircle;
 use super::emitters::Emitters;
 
@@ -17,13 +18,20 @@ use super::emitters::Emitters;
 /// object implementation.
 #[derive(Clone, Debug)]
 pub enum RaytracerObjects {
-    /// A circular shape object (used for barriers, mirrors, etc.)
+    /// A simple circular shape object
     ObjectCircle(ObjectCircle),
-    /// A standard isotropic light emitter
+    /// The enum for all emitter objects
     Emitters(Emitters),
+    /// The enum for all absorber objects
+    Absorbers(Absorbers),
 }
 
 impl RaytracerObjects {
+    /// Gets the position of any RaytracerObject and returns it as a 2-tuple
+    ///
+    /// # Arguments
+    ///
+    /// *`&self` - pointer to the RaytracerObject
     pub fn get_pos(&self) -> (f32, f32) {
         match self {
             RaytracerObjects::ObjectCircle(object) => (object.pos_x, object.pos_y),
@@ -39,6 +47,11 @@ impl RaytracerObjects {
                     object.base_emitter.base_object.pos_x,
                     object.base_emitter.base_object.pos_y,
                 ),
+            },
+            RaytracerObjects::Absorbers(absorber) => match absorber {
+                Absorbers::AbsorberPerfect(object) => {
+                    (object.base_object.pos_x, object.base_object.pos_y)
+                }
             },
         }
     }
