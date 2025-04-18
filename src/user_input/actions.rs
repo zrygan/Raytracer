@@ -11,7 +11,7 @@ use crate::globals::{
     OBJD_COLLIMATED_ORIENTATION, OBJD_SPOTLIGHT_BEAM_ANGLE, OBJD_SPOTLIGHT_ORIENTATION,
 };
 use crate::objects::circle::ObjectCircle;
-use crate::objects::emitters::{Emitter, EmitterCollimated, EmitterSpotlight};
+use crate::objects::emitters::{EmitterCollimated, EmitterIsotropic, EmitterSpotlight};
 use crate::objects::ray::{init_collimated_rays, init_isotropic_rays, init_spotlight_rays};
 use macroquad::input::mouse_position;
 
@@ -43,7 +43,7 @@ pub fn add_object_to_scene(object_type: &str) {
         ObjectCircle::new_and_add(mouse_x, mouse_y, OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS);
     } else if let "emitter_isotropic" = object_type {
         // Create an isotropic emitter (radiating in all directions)
-        Emitter::new(
+        EmitterIsotropic::new(
             ObjectCircle::new(mouse_x, mouse_y, OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS),
             init_isotropic_rays(mouse_x, mouse_y),
         );

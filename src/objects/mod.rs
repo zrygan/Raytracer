@@ -8,7 +8,7 @@
 //! - `emitters`: Light emitter implementations (isotropic and collimated)
 //! - `ray`: Ray objects that represent light paths
 //! - `utils`: Utility functions for object manipulations
-//! 
+//!
 //! author:         Zhean Ganituen (zrygan)
 //! last updated:   April 16, 2025
 
@@ -16,4 +16,3 @@ pub mod behavior;
 pub mod circle;
 pub mod emitters;
 pub mod ray;
-pub mod utils;

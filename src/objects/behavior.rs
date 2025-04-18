@@ -28,7 +28,9 @@ impl RaytracerObjects {
         match self {
             RaytracerObjects::ObjectCircle(object) => (object.pos_x, object.pos_y),
             RaytracerObjects::Emitters(emitter) => match emitter {
-                Emitters::Emitter(object) => (object.base_object.pos_x, object.base_object.pos_y),
+                Emitters::EmitterIsotropic(object) => {
+                    (object.base_object.pos_x, object.base_object.pos_y)
+                }
                 Emitters::EmitterCollimated(object) => (
                     object.base_emitter.base_object.pos_x,
                     object.base_emitter.base_object.pos_y,

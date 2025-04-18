@@ -10,8 +10,8 @@
 use std::f32::consts::PI;
 
 use super::behavior::Drawable;
-use super::utils::linspace;
 use crate::globals::{OBJC_MAX_RAY_COUNT, OBJD_RAY_COLOR, OBJD_RAY_WIDTH};
+use crate::helpers::object_utils::linspace;
 
 use macroquad::{
     color::Color,

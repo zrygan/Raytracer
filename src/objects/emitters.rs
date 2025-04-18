@@ -1,4 +1,4 @@
-//! Emitter objects initialization and behaviors
+//! EmitterIsotropic objects initialization and behaviors
 //!
 //! This module provides light emitter implementations for the raytracer system.
 //! It defines three types of emitters: isotropic (radiating in all directions),
@@ -11,7 +11,7 @@ use macroquad::shapes::draw_circle;
 
 use super::behavior::{Drawable, Movable, RaytracerObjects};
 use super::circle::ObjectCircle;
-use super::ray::ObjectRay;
+use super::ray::{ObjectRay, init_collimated_rays, init_isotropic_rays, init_spotlight_rays};
 use crate::OBJ_COLLECTION;
 
 /// Enumeration of all emitter types supported by the raytracer.
@@ -21,7 +21,7 @@ use crate::OBJ_COLLECTION;
 #[derive(Clone, Debug)]
 pub enum Emitters {
     /// Standard isotropic emitter that radiates light in all directions
-    Emitter(Emitter),
+    EmitterIsotropic(EmitterIsotropic),
     /// Directional emitter that produces parallel rays
     EmitterCollimated(EmitterCollimated),
     /// Spotlight emitter that produces a cone-shaped beam
@@ -34,7 +34,7 @@ impl Drawable for Emitters {
     /// Delegates to the appropriate draw_object method based on the emitter type.
     fn draw_object(&self) {
         match self {
-            Emitters::Emitter(e) => e.draw_object(),
+            Emitters::EmitterIsotropic(e) => e.draw_object(),
             Emitters::EmitterCollimated(e) => e.base_emitter.draw_object(),
             Emitters::EmitterSpotlight(e) => e.base_emitter.draw_object(),
         }
@@ -52,9 +52,27 @@ impl Movable for Emitters {
     /// * `pos_y` - The new y-coordinate position
     fn move_object(&mut self, pos_x: f32, pos_y: f32) {
         match self {
-            Emitters::Emitter(e) => e.move_object(pos_x, pos_y),
-            Emitters::EmitterCollimated(e) => e.base_emitter.move_object(pos_x, pos_y),
-            Emitters::EmitterSpotlight(e) => e.base_emitter.move_object(pos_x, pos_y),
+            Emitters::EmitterIsotropic(obj) => {
+                obj.base_object.pos_x = pos_x;
+                obj.base_object.pos_y = pos_y;
+                obj.rays = init_isotropic_rays(pos_x, pos_y);
+            }
+            Emitters::EmitterCollimated(obj) => {
+                obj.base_emitter.base_object.pos_x = pos_x;
+                obj.base_emitter.base_object.pos_y = pos_y;
+                obj.base_emitter.rays = init_collimated_rays(
+                    pos_x,
+                    pos_y,
+                    obj.orientation,
+                    obj.collimated_beam_diameter,
+                );
+            }
+            Emitters::EmitterSpotlight(obj) => {
+                obj.base_emitter.base_object.pos_x = pos_x;
+                obj.base_emitter.base_object.pos_y = pos_y;
+                obj.base_emitter.rays =
+                    init_spotlight_rays(pos_x, pos_y, obj.orientation, obj.spotlight_beam_angle);
+            }
         }
     }
 }
@@ -64,14 +82,14 @@ impl Movable for Emitters {
 /// This emitter radiates light rays in all directions from a central point,
 /// similar to a point light source in real-world physics.
 #[derive(Clone, Debug)]
-pub struct Emitter {
+pub struct EmitterIsotropic {
     /// The physical representation of the emitter (position, size, color)
     pub base_object: ObjectCircle,
     /// Collection of light rays emanating from this emitter
     pub rays: Vec<ObjectRay>,
 }
 
-impl Emitter {
+impl EmitterIsotropic {
     /// Creates a new isotropic emitter with the given properties.
     ///
     /// Adds the newly created emitter to the global object collection
@@ -84,14 +102,14 @@ impl Emitter {
     ///
     /// # Returns
     ///
-    /// A new `Emitter` instance with the specified parameters
+    /// A new `EmitterIsotropic` instance with the specified parameters
     pub fn new(base_object: ObjectCircle, rays: Vec<ObjectRay>) -> Self {
-        let new_emitter = Emitter { base_object, rays };
+        let new_emitter = EmitterIsotropic { base_object, rays };
 
         OBJ_COLLECTION
             .lock()
             .unwrap()
-            .push(RaytracerObjects::Emitters(Emitters::Emitter(
+            .push(RaytracerObjects::Emitters(Emitters::EmitterIsotropic(
                 new_emitter.clone(),
             )));
 
@@ -99,7 +117,7 @@ impl Emitter {
     }
 }
 
-impl Drawable for Emitter {
+impl Drawable for EmitterIsotropic {
     /// Draws the isotropic emitter and its rays on the screen.
     ///
     /// Renders the emitter as a colored circle and draws all of its
@@ -114,28 +132,9 @@ impl Drawable for Emitter {
         );
 
         // Draw all the light rays associated with this emitter
-        for ray in self.rays.clone() {
+        for ray in &self.rays {
             ray.draw_object();
         }
-    }
-}
-
-impl Movable for Emitter {
-    /// Moves the emitter to a new position.
-    ///
-    /// Currently only logs the new position; implementation for actually
-    /// moving the emitter and updating its rays would need to be added.
-    ///
-    /// # Arguments
-    ///
-    /// * `pos_x` - The new x-coordinate position
-    /// * `pos_y` - The new y-coordinate position
-    fn move_object(&mut self, pos_x: f32, pos_y: f32) {
-        self.base_object.pos_x = pos_x;
-        self.base_object.pos_y = pos_y;
-
-        // when we move an emitter we need to "undraw" the rays at its current
-        // position
     }
 }
 
@@ -146,7 +145,7 @@ impl Movable for Emitter {
 #[derive(Clone, Debug)]
 pub struct EmitterCollimated {
     /// The underlying emitter providing basic functionality
-    pub base_emitter: Emitter,
+    pub base_emitter: EmitterIsotropic,
     /// The angle (in radians) at which rays are emitted
     pub orientation: f32,
     /// The width of the beam of parallel rays
@@ -176,7 +175,7 @@ impl EmitterCollimated {
         collimated_beam_diameter: f32,
     ) -> Self {
         let new_emitter = EmitterCollimated {
-            base_emitter: Emitter { base_object, rays },
+            base_emitter: EmitterIsotropic { base_object, rays },
             orientation,
             collimated_beam_diameter,
         };
@@ -200,7 +199,7 @@ impl EmitterCollimated {
 #[derive(Clone, Debug)]
 pub struct EmitterSpotlight {
     /// The underlying emitter providing basic functionality
-    pub base_emitter: Emitter,
+    pub base_emitter: EmitterIsotropic,
     /// The central angle (in radians) at which the spotlight is directed
     pub orientation: f32,
     /// The angular range (in radians) within which rays are emitted
@@ -232,7 +231,7 @@ impl EmitterSpotlight {
         spotlight_beam_angle: f32,
     ) -> Self {
         let new_emitter = EmitterSpotlight {
-            base_emitter: Emitter { base_object, rays },
+            base_emitter: EmitterIsotropic { base_object, rays },
             orientation,
             spotlight_beam_angle,
         };
