@@ -10,6 +10,7 @@ use macroquad::prelude::Color;
 use once_cell::sync::Lazy;
 use std::f32::consts::PI;
 use std::sync::Mutex;
+use std::time::Duration;
 
 /// App Information (starts with the APP_ prefix)
 ///
@@ -27,6 +28,8 @@ pub const APP_GITHUB: &str = "https://github.com/zrygan/raytracer";
 pub const WINDOW_HEIGHT: i32 = 800;
 pub const WINDOW_WIDTH: i32 = 600;
 pub const WINDOW_BG_COLOR: Color = Color::new(0.00, 0.00, 0.00, 1.00); // Black
+pub const WINDOW_SLEEP_BOOLEAN: bool = true;
+pub const WINDOW_SLEEP_DURATION: Duration = Duration::from_millis(16);
 
 /// Standard Colors
 ///
