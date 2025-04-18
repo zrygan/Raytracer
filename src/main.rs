@@ -134,7 +134,7 @@ async fn main() {
             // ============================================================
             // =============== DEBUG AND OTHER KEYBINDS
             // ============================================================
-            } else if is_key_pressed(KEYB_DELETE) {
+            } else if is_key_pressed(KEYB_DELETE) && collection_size >= 1 {
                 if let Some(i) = object_at_cursor(mouse_x, mouse_y) {
                     remove_object_at_index(i);
                     println!("Raytracer Upd: Deleted object at {}, {}", mouse_x, mouse_y);
