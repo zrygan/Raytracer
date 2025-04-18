@@ -13,9 +13,9 @@ mod objects;
 mod user_input;
 
 use globals::*;
-use helpers::utils::{object_at_cursor, print_all_objects, remove_object_at_index};
+use helpers::action_utils::{object_at_cursor, print_all_objects, remove_object_at_index};
 use macroquad::prelude::*;
-use objects::{behavior::*, emitters::*};
+use objects::behavior::*;
 use user_input::actions::add_object_to_scene;
 
 /// Configures the application window settings.
@@ -65,10 +65,9 @@ async fn main() {
         APP_NAME, APP_VERSION, APP_AUTHOR, APP_GITHUB
     );
 
-    // Clear the screen with the background color
-    clear_background(WINDOW_BG_COLOR);
-
     loop {
+        // Clear the screen with the background color
+        clear_background(WINDOW_BG_COLOR);
         (mouse_x, mouse_y) = mouse_position();
 
         // Handle user input for object creation
@@ -107,18 +106,6 @@ async fn main() {
                 print_all_objects();
                 println!("Raytracer Debug: Done showing all objects in OBJ_COLLECTION.");
             }
-
-            // Draw all objects in the global collection
-            for r_obj in OBJ_COLLECTION.lock().unwrap().iter() {
-                match r_obj {
-                    RaytracerObjects::ObjectCircle(object) => {
-                        object.draw_object();
-                    }
-                    RaytracerObjects::Emitters(object) => {
-                        object.draw_object();
-                    }
-                }
-            }
         } else {
             eprintln!(
                 "Raytracer Err: Too many RaytracerObjects in the scene, you can only have {}",
@@ -144,17 +131,19 @@ async fn main() {
             if let Some(raytracer_object) = collection.get_mut(cursor_on_object_index.unwrap()) {
                 match raytracer_object {
                     RaytracerObjects::ObjectCircle(object) => object.move_object(mouse_x, mouse_y),
-                    RaytracerObjects::Emitters(emitter) => match emitter {
-                        Emitters::Emitter(object) => object.move_object(mouse_x, mouse_y),
-                        Emitters::EmitterCollimated(object) => object
-                            .base_emitter
-                            .base_object
-                            .move_object(mouse_x, mouse_y),
-                        Emitters::EmitterSpotlight(object) => object
-                            .base_emitter
-                            .base_object
-                            .move_object(mouse_x, mouse_y),
-                    },
+                    RaytracerObjects::Emitters(object) => object.move_object(mouse_x, mouse_y),
+                }
+            }
+        }
+
+        // Draw all objects in the global collection
+        for r_obj in OBJ_COLLECTION.lock().unwrap().iter() {
+            match r_obj {
+                RaytracerObjects::ObjectCircle(object) => {
+                    object.draw_object();
+                }
+                RaytracerObjects::Emitters(object) => {
+                    object.draw_object();
                 }
             }
         }

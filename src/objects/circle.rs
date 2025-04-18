@@ -47,12 +47,16 @@ impl ObjectCircle {
     ///
     /// A new `ObjectCircle` instance with the specified parameters
     pub fn new(pos_x: f32, pos_y: f32, color_fill: Color, radius: f32) -> ObjectCircle {
-        let new_circle: ObjectCircle = ObjectCircle {
+        ObjectCircle {
             pos_x,
             pos_y,
             color_fill,
             radius,
-        };
+        }
+    }
+
+    pub fn new_and_add(pos_x: f32, pos_y: f32, color_fill: Color, radius: f32) -> ObjectCircle {
+        let new_circle: ObjectCircle = ObjectCircle::new(pos_x, pos_y, color_fill, radius);
 
         OBJ_COLLECTION
             .lock()
