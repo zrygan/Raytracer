@@ -9,10 +9,9 @@
 
 use macroquad::shapes::draw_circle;
 
-use super::behavior::{Drawable, Movable, RaytracerObjects};
+use super::behavior::{Drawable, Movable};
 use super::circle::ObjectCircle;
 use super::ray::{ObjectRay, init_collimated_rays, init_isotropic_rays, init_spotlight_rays};
-use crate::OBJ_COLLECTION;
 
 /// Enumeration of all emitter types supported by the raytracer.
 ///
@@ -104,16 +103,7 @@ impl EmitterIsotropic {
     ///
     /// A new `EmitterIsotropic` instance with the specified parameters
     pub fn new(base_object: ObjectCircle, rays: Vec<ObjectRay>) -> Self {
-        let new_emitter = EmitterIsotropic { base_object, rays };
-
-        OBJ_COLLECTION
-            .lock()
-            .unwrap()
-            .push(RaytracerObjects::Emitters(Emitters::EmitterIsotropic(
-                new_emitter.clone(),
-            )));
-
-        new_emitter
+        EmitterIsotropic { base_object, rays }
     }
 }
 
@@ -174,20 +164,11 @@ impl EmitterCollimated {
         orientation: f32,
         collimated_beam_diameter: f32,
     ) -> Self {
-        let new_emitter = EmitterCollimated {
+        EmitterCollimated {
             base_emitter: EmitterIsotropic { base_object, rays },
             orientation,
             collimated_beam_diameter,
-        };
-
-        OBJ_COLLECTION
-            .lock()
-            .unwrap()
-            .push(RaytracerObjects::Emitters(Emitters::EmitterCollimated(
-                new_emitter.clone(),
-            )));
-
-        new_emitter
+        }
     }
 }
 
@@ -230,19 +211,10 @@ impl EmitterSpotlight {
         orientation: f32,
         spotlight_beam_angle: f32,
     ) -> Self {
-        let new_emitter = EmitterSpotlight {
+        EmitterSpotlight {
             base_emitter: EmitterIsotropic { base_object, rays },
             orientation,
             spotlight_beam_angle,
-        };
-
-        OBJ_COLLECTION
-            .lock()
-            .unwrap()
-            .push(RaytracerObjects::Emitters(Emitters::EmitterSpotlight(
-                new_emitter.clone(),
-            )));
-
-        new_emitter
+        }
     }
 }

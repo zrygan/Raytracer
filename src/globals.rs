@@ -9,7 +9,7 @@ use macroquad::input::KeyCode::{self};
 use macroquad::prelude::Color;
 use once_cell::sync::Lazy;
 use std::f32::consts::PI;
-use std::sync::Mutex;
+use std::sync::RwLock;
 
 /// App Information (starts with the APP_ prefix)
 ///
@@ -48,8 +48,8 @@ pub const MACROQUAD_RESIZEABLE: bool = true;
 ///
 /// Thread-safe global collection of all objects in the raytracer scene.
 /// Uses a mutex to allow safe mutation from different parts of the code.
-pub static OBJ_COLLECTION: Lazy<Mutex<Vec<RaytracerObjects>>> =
-    Lazy::new(|| Mutex::new(Vec::new()));
+pub static OBJ_COLLECTION: Lazy<RwLock<Vec<RaytracerObjects>>> =
+    Lazy::new(|| RwLock::new(Vec::new()));
 
 /// Raytracer Object Constants (starts with the OBJC_ prefix)
 ///

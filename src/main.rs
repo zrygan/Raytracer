@@ -67,7 +67,7 @@ async fn main() {
     let mut mouse_x: f32;
     let mut mouse_y: f32;
     let mut mouse_delta: Vec2 = vec2(0.0, 0.0);
-
+    let mut collection_size = 0;
     let mut ft;
 
     // print app information
@@ -84,7 +84,7 @@ async fn main() {
         (mouse_x, mouse_y) = mouse_position();
 
         // Handle user input for object creation
-        if OBJC_MAX_OBJ_COUNT as usize > OBJ_COLLECTION.lock().iter().len() {
+        if OBJC_MAX_OBJ_COUNT as usize > collection_size {
             // ============================================================
             // =============== EMITTERS
             // ============================================================
@@ -95,6 +95,7 @@ async fn main() {
                 );
                 add_object_to_scene("circle_none");
                 re_init_rays = true;
+                collection_size += 1;
             } else if is_key_pressed(KEYB_EMITTER_ISOTROPIC) {
                 println!(
                     "Raytracer Upd: Isotropic emitter object created at {}, {}",
@@ -102,6 +103,7 @@ async fn main() {
                 );
                 add_object_to_scene("emitter_isotropic");
                 re_init_rays = true;
+                collection_size += 1;
             } else if is_key_pressed(KEYB_EMITTER_COLLIMATED) {
                 println!(
                     "Raytracer Upd: Collimated emitter object created at {}, {}",
@@ -109,6 +111,7 @@ async fn main() {
                 );
                 add_object_to_scene("emitter_collimated");
                 re_init_rays = true;
+                collection_size += 1;
             } else if is_key_pressed(KEYB_EMITTER_SPOTLIGHT) {
                 println!(
                     "Raytracer Upd: Spotlight emitter object created at {}, {}",
@@ -116,6 +119,7 @@ async fn main() {
                 );
                 add_object_to_scene("emitter_spotlight");
                 re_init_rays = true;
+                collection_size += 1;
             // ============================================================
             // =============== ABSORBERS
             // ============================================================
@@ -126,6 +130,7 @@ async fn main() {
                 );
                 add_object_to_scene("absorber_perfect");
                 re_init_rays = true;
+                collection_size += 1;
             // ============================================================
             // =============== DEBUG AND OTHER KEYBINDS
             // ============================================================
@@ -135,6 +140,8 @@ async fn main() {
                     println!("Raytracer Upd: Deleted object at {}, {}", mouse_x, mouse_y);
                 };
                 re_init_rays = true;
+
+                collection_size -= 1;
             } else if is_key_pressed(KEYB_DEBUG_SHOW_ALL_OBJ) {
                 println!("Raytracer Debug: Showing all objects inside OBJ_COLLECTION.");
                 print_all_objects();
@@ -143,7 +150,7 @@ async fn main() {
         } else {
             eprintln!(
                 "Raytracer Err: Too many RaytracerObjects in the scene, you can only have {}",
-                OBJ_COLLECTION.lock().iter().len()
+                collection_size
             );
         }
 
@@ -160,17 +167,23 @@ async fn main() {
 
         // If user is moving the cursor and is dragging an object,
         // move that object
-        if mouse_delta != vec2(0.0, 0.0) && cursor_on_object_index.is_some() {
-            let mut collection = OBJ_COLLECTION.lock().unwrap();
-            if let Some(raytracer_object) = collection.get_mut(cursor_on_object_index.unwrap()) {
-                match raytracer_object {
-                    RaytracerObjects::ObjectCircle(object) => object.move_object(mouse_x, mouse_y),
-                    RaytracerObjects::Emitters(object) => object.move_object(mouse_x, mouse_y),
-                    RaytracerObjects::Absorbers(object) => {
-                        object.move_object(mouse_x, mouse_y);
+        if mouse_delta != vec2(0.0, 0.0) {
+            if let Some(index) = cursor_on_object_index {
+                let mut collection = OBJ_COLLECTION.write().unwrap();
+                if let Some(object) = collection.get_mut(index) {
+                    match object {
+                        RaytracerObjects::ObjectCircle(o) => {
+                            o.move_object(mouse_x, mouse_y);
+                        }
+                        RaytracerObjects::Emitters(o) => {
+                            o.move_object(mouse_x, mouse_y);
+                        }
+                        RaytracerObjects::Absorbers(o) => {
+                            o.move_object(mouse_x, mouse_y);
+                        }
                     }
+                    re_init_rays = true;
                 }
-                re_init_rays = true;
             }
         }
 
@@ -185,7 +198,7 @@ async fn main() {
         }
 
         // Draw all objects in the global collection
-        for r_obj in OBJ_COLLECTION.lock().unwrap().iter() {
+        for r_obj in OBJ_COLLECTION.read().unwrap().iter() {
             match r_obj {
                 RaytracerObjects::ObjectCircle(object) => {
                     object.draw_object();
