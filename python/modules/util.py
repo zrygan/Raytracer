@@ -1,6 +1,6 @@
 from typing import Tuple
 import math
-from src.variables import *
+from modules.variables import *
 
 
 def hexstr_int(hex_value: str) -> int:
