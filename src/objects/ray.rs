@@ -26,17 +26,17 @@ use macroquad::{
 #[derive(Clone, Debug)]
 pub struct ObjectRay {
     /// X coordinate of the ray's starting point
-    start_x: f32,
+    pub start_x: f32,
     /// Y coordinate of the ray's starting point
-    start_y: f32,
+    pub start_y: f32,
     /// X coordinate of the ray's ending point
-    end_x: f32,
+    pub end_x: f32,
     /// Y coordinate of the ray's ending point
-    end_y: f32,
+    pub end_y: f32,
     /// Visual thickness of the ray when drawn
-    thickness: f32,
+    pub thickness: f32,
     /// Color of the ray when drawn
-    color: Color,
+    pub color: Color,
 }
 
 impl ObjectRay {

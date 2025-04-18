@@ -7,7 +7,7 @@
 //! author:         Zhean Ganituen (zrygan)
 //! last updated:   April 18, 2025
 
-use super::absorber::{self, Absorbers};
+use super::absorber::Absorbers;
 use super::circle::ObjectCircle;
 use super::emitters::Emitters;
 
