@@ -8,11 +8,13 @@
 //! last updated:   April 17, 2025
 
 mod globals;
+mod helpers;
 mod objects;
 mod user_input;
 
 use globals::*;
-use macroquad::prelude::{camera::mouse, *};
+use helpers::utils::remove_object_at_index;
+use macroquad::prelude::*;
 use objects::{behavior::*, emitters::*};
 use user_input::actions::add_object_to_scene;
 
@@ -109,7 +111,7 @@ async fn main() {
                 }
             }
         } else {
-            println!(
+            eprintln!(
                 "Raytracer Err: Too many RaytracerObjects in the scene, you can only have {}",
                 OBJ_COLLECTION.lock().iter().len()
             );
