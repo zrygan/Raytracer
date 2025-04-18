@@ -1,10 +1,10 @@
 //! Circle object initialization and behaviors
 //!
 //! This module defines the circle object type used throughout the raytracer.
-//! Circle objects serve as both standalone entities and as the visual base 
+//! Circle objects serve as both standalone entities and as the visual base
 //! for other object types like emitters. The module provides implementation
 //! of the core `Drawable` and `Movable` traits.
-//! 
+//!
 //! author:         Zhean Ganituen (zrygan)
 //! last updated:   April 16, 2025
 
@@ -18,7 +18,7 @@ use macroquad::prelude::*;
 /// Circle objects are the fundamental building blocks for many raytracer
 /// elements including barriers, emitter bases, and interactive elements.
 /// They have position, color, and size properties.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ObjectCircle {
     /// X-coordinate of the circle's center position
     pub pos_x: f32,
@@ -58,7 +58,7 @@ impl ObjectCircle {
             .lock()
             .unwrap()
             .push(RaytracerObjects::ObjectCircle(new_circle.clone()));
-        
+
         new_circle
     }
 }

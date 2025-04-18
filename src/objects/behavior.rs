@@ -15,11 +15,31 @@ use super::emitters::Emitters;
 /// This enum allows for polymorphic handling of different object types
 /// in collections and the rendering system. Each variant wraps a concrete
 /// object implementation.
+#[derive(Clone, Debug)]
 pub enum RaytracerObjects {
     /// A circular shape object (used for barriers, mirrors, etc.)
     ObjectCircle(ObjectCircle),
     /// A standard isotropic light emitter
     Emitters(Emitters),
+}
+
+impl RaytracerObjects {
+    pub fn get_pos(&self) -> (f32, f32) {
+        match self {
+            RaytracerObjects::ObjectCircle(object) => (object.pos_x, object.pos_y),
+            RaytracerObjects::Emitters(emitter) => match emitter {
+                Emitters::Emitter(object) => (object.base_object.pos_x, object.base_object.pos_y),
+                Emitters::EmitterCollimated(object) => (
+                    object.base_emitter.base_object.pos_x,
+                    object.base_emitter.base_object.pos_y,
+                ),
+                Emitters::EmitterSpotlight(object) => (
+                    object.base_emitter.base_object.pos_x,
+                    object.base_emitter.base_object.pos_y,
+                ),
+            },
+        }
+    }
 }
 
 /// Trait for objects that can be rendered to the screen.

@@ -55,6 +55,7 @@ pub static OBJ_COLLECTION: Lazy<Mutex<Vec<RaytracerObjects>>> =
 /// and memory overflow.
 pub const OBJC_MAX_OBJ_COUNT: i32 = 100;
 pub const OBJC_MAX_RAY_COUNT: i32 = 25;
+pub const OBJC_MOUSE_EPSILON: f32 = 5.0;
 
 /// Raytracer Default Object Parameters (starts with OBJD_ prefix)
 ///
