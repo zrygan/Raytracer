@@ -39,9 +39,12 @@ All objects created with keybinds will get default parameters.
 
 Also, all objects will be created in the cursor position.
 
-1. `s` : creates a simple circle object.
+1. `o` : creates a simple circle object.
 2. `i` : creates an isotropic emitter object.
 3. `c` : creates a collimated emitter object.
+4. `s` : created a spotlight emitter object.
+5. `backspace` ; delete the object on the cursor.
+6. `\` : `debug tool`, show all objects on the scene
  
 
 ## Requirements
