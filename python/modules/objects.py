@@ -51,7 +51,7 @@ class Circle:
     def change_radius(self, radius):
         self.radius = radius
 
-    def get_radius(&self):
+    def get_radius(self):
         return self.radius
 
     def get_x(self):

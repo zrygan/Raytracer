@@ -6,7 +6,7 @@
 
 use crate::objects::behavior::RaytracerObjects;
 use macroquad::input::KeyCode::{self};
-use macroquad::prelude::{Color, is_key_down, is_key_pressed};
+use macroquad::prelude::Color;
 use once_cell::sync::Lazy;
 use std::f32::consts::PI;
 use std::sync::RwLock;
