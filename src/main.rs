@@ -383,7 +383,7 @@ async fn main() {
         } else {
             eprintln!(
                 "Raytracer Err: Too many RaytracerObjects in the scene, you can only have {}",
-                collection_size
+                OBJC_MAX_OBJ_COUNT
             );
         }
 
