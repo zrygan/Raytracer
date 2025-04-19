@@ -73,7 +73,10 @@ impl VariableSize for Absorbers {
     /// * `factor` - The change size factor
     fn change_radius(&mut self, factor: f32) {
         match self {
-            Absorbers::AbsorberPerfect(obj) => obj.base_object.radius += factor,
+            Absorbers::AbsorberPerfect(obj) => {
+                let new_radius = obj.base_object.radius + factor;
+                obj.base_object.radius = if new_radius > 0.0 { new_radius } else { 0.0 };
+            }
         }
     }
 
