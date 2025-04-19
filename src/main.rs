@@ -185,7 +185,7 @@ async fn main() {
                             } else {
                                 -1
                             };
-                            o.collimated_beam_diameter -= width_delta as f32;
+                            o.collimated_beam_diameter += width_delta as f32;
 
                             println!(
                                 "Raytracer Upd: {} collimated beam diameter to Emitter object at {}, {}",

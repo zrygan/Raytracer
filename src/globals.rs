@@ -101,8 +101,8 @@ pub const KEYB_RTC_SHRINK: KeyCode = KeyCode::Minus;
 pub const KEYB_EMM_INC_RAYS: KeyCode = KeyCode::RightBracket;
 pub const KEYB_EMM_DEC_RAYS: KeyCode = KeyCode::LeftBracket;
 
-/// Raytracer Keybinds for Collimaters (starts with KEYB_COLM_ prefix)
+/// Raytracer Keybinds for Collimators (starts with KEYB_COLM_ prefix)
 /// These constants map keyboard keys to specific actions in raytracer when the
-/// user is hovering on a EmitterCollimated type object
+/// user is hovering on an EmitterCollimated type object
 pub const KEYB_COLM_INC_BEAM_DIAMETER: KeyCode = KeyCode::Semicolon;
 pub const KEYB_COLM_DEC_BEAM_DIAMETER: KeyCode = KeyCode::Apostrophe;
