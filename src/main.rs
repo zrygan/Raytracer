@@ -82,9 +82,16 @@ async fn main() {
     );
 
     loop {
-        let add_rays_pressed = is_key_pressed(KEYB_EMM_ADD_RAYS) || is_key_down(KEYB_EMM_ADD_RAYS);
-        let reduce_rays_pressed =
-            is_key_pressed(KEYB_EMM_REDUCE_RAYS) || is_key_down(KEYB_EMM_REDUCE_RAYS);
+        let keybind_increase_rays =
+            is_key_pressed(KEYB_EMM_INC_RAYS) || is_key_down(KEYB_EMM_INC_RAYS);
+        let keybind_decrease_rays =
+            is_key_pressed(KEYB_EMM_DEC_RAYS) || is_key_down(KEYB_EMM_DEC_RAYS);
+
+        let keybind_increase_collimated_beam_diameter =
+            is_key_pressed(KEYB_COLM_INC_BEAM_DIAMETER) || is_key_down(KEYB_COLM_INC_BEAM_DIAMETER);
+
+        let keybind_decrease_collimated_beam_diameter =
+            is_key_pressed(KEYB_COLM_DEC_BEAM_DIAMETER) || is_key_down(KEYB_COLM_DEC_BEAM_DIAMETER);
 
         ft = get_frame_time();
         // Clear the screen with the background color
@@ -131,6 +138,72 @@ async fn main() {
                 collection_size += 1;
             }
             // ============================================================
+            // =============== INCREASE/DECREASE EMITTER RAYS
+            // ============================================================
+            else if keybind_increase_rays || keybind_decrease_rays {
+                cursor_on_object_type = object_at_cursor_type(mouse_x, mouse_y, false);
+                cursor_on_object_index = object_at_cursor_index(mouse_x, mouse_y);
+
+                if cursor_on_object_type == "Emitter" {
+                    if let Some(index) = cursor_on_object_index {
+                        let mut collection = OBJ_COLLECTION.write().unwrap();
+
+                        if let Some(RaytracerObjects::Emitters(o)) = collection.get_mut(index) {
+                            let ray_delta = if keybind_increase_rays { 1 } else { -1 };
+                            o.change_rays_count(ray_delta);
+
+                            println!(
+                                "Raytracer Upd: {} rays to Emitter object at {}, {}",
+                                if ray_delta > 0 { "Adding" } else { "Reducing" },
+                                mouse_x,
+                                mouse_y
+                            );
+
+                            re_init_rays = true;
+                        }
+                    }
+                }
+            }
+            // ============================================================
+            // =============== INCREASE/DECREASE COLLIMATED BEAM WIDTH
+            // ============================================================
+            else if keybind_increase_collimated_beam_diameter
+                || keybind_decrease_collimated_beam_diameter
+            {
+                cursor_on_object_type = object_at_cursor_type(mouse_x, mouse_y, true);
+                cursor_on_object_index = object_at_cursor_index(mouse_x, mouse_y);
+
+                if cursor_on_object_type == "Collimated" {
+                    if let Some(index) = cursor_on_object_index {
+                        let mut collection = OBJ_COLLECTION.write().unwrap();
+
+                        if let Some(RaytracerObjects::Emitters(Emitters::EmitterCollimated(o))) =
+                            collection.get_mut(index)
+                        {
+                            let width_delta = if keybind_increase_collimated_beam_diameter {
+                                1
+                            } else {
+                                -1
+                            };
+                            o.collimated_beam_diameter -= width_delta as f32;
+
+                            println!(
+                                "Raytracer Upd: {} collimated beam diameter to Emitter object at {}, {}",
+                                if width_delta > 0 {
+                                    "Increasing"
+                                } else {
+                                    "Decreasing"
+                                },
+                                mouse_x,
+                                mouse_y
+                            );
+
+                            re_init_rays = true;
+                        }
+                    }
+                }
+            }
+            // ============================================================
             // =============== ABSORBERS
             // ============================================================
             else if is_key_pressed(KEYB_ABSORBER_PERFECT) {
@@ -153,34 +226,6 @@ async fn main() {
                 println!("Raytracer Upd: Reduced object at {}, {}", mouse_x, mouse_y);
                 object_change_size(mouse_x, mouse_y, -OBJD_ENLARGE_REDUCE_FACTOR);
                 re_init_rays = true;
-            }
-            // ============================================================
-            // =============== INCREASE/DECREASE EMITTER RAYS
-            // ============================================================
-            else if add_rays_pressed || reduce_rays_pressed {
-                // Update object info
-                cursor_on_object_type = object_at_cursor_type(mouse_x, mouse_y);
-                cursor_on_object_index = object_at_cursor_index(mouse_x, mouse_y);
-
-                if cursor_on_object_type == "Emitter" {
-                    if let Some(index) = cursor_on_object_index {
-                        let mut collection = OBJ_COLLECTION.write().unwrap();
-
-                        if let Some(RaytracerObjects::Emitters(o)) = collection.get_mut(index) {
-                            let ray_delta = if add_rays_pressed { 1 } else { -1 };
-                            o.change_rays_count(ray_delta);
-
-                            println!(
-                                "Raytracer Upd: {} rays to Emitter object at {}, {}",
-                                if ray_delta > 0 { "Adding" } else { "Reducing" },
-                                mouse_x,
-                                mouse_y
-                            );
-
-                            re_init_rays = true;
-                        }
-                    }
-                }
             }
             // ============================================================
             // =============== DEBUG AND OTHER KEYBINDS
