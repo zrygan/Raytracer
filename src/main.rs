@@ -24,7 +24,10 @@ use macroquad::time::draw_fps;
 use objects::emitters::*;
 use objects::{behavior::*, occlusion::check_for_occlusion};
 use std::{thread::sleep, time::Duration};
-use user_input::{add_to_scene_actions::add_object_to_scene, emitter_actions::object_change_size};
+use user_input::{
+    add_to_scene_actions::add_object_to_scene,
+    emitter_actions::{object_change_orientation, object_change_size},
+};
 
 /// Configures the application window settings.
 ///
@@ -180,11 +183,16 @@ async fn main() {
                         if let Some(RaytracerObjects::Emitters(Emitters::EmitterCollimated(o))) =
                             collection.get_mut(index)
                         {
-                            let width_delta = if keybind_increase_collimated_beam_diameter {
+                            let mut width_delta = if keybind_increase_collimated_beam_diameter {
                                 1
                             } else {
                                 -1
                             };
+
+                            if is_key_down(KeyCode::LeftShift) {
+                                width_delta *= KEYB_RTC_MULTIPLIER;
+                            }
+
                             o.collimated_beam_diameter += width_delta as f32;
 
                             println!(
@@ -218,26 +226,96 @@ async fn main() {
             // ============================================================
             // =============== ENLARGE AND REDUCE
             // ============================================================
-            else if is_key_down(KEYB_RTC_ENLARGE) {
-                println!("Raytracer Upd: Enlarged object at {}, {}", mouse_x, mouse_y);
-                object_change_size(mouse_x, mouse_y, OBJD_ENLARGE_REDUCE_FACTOR);
-                re_init_rays = true;
-            } else if is_key_down(KEYB_RTC_SHRINK) {
-                println!("Raytracer Upd: Reduced object at {}, {}", mouse_x, mouse_y);
-                object_change_size(mouse_x, mouse_y, -OBJD_ENLARGE_REDUCE_FACTOR);
-                re_init_rays = true;
+            else if is_key_down(KEYB_RTC_ENLARGE) || is_key_down(KEYB_RTC_SHRINK) {
+                if object_at_cursor_type(mouse_x, mouse_y, false) != "None" {
+                    let mut multiplier = if is_key_down(KEYB_RTC_ENLARGE) {
+                        1.
+                    } else {
+                        -1.
+                    };
+
+                    if is_key_down(KeyCode::LeftShift) {
+                        multiplier *= KEYB_RTC_MULTIPLIER as f32;
+                    }
+
+                    object_change_size(mouse_x, mouse_y, multiplier * OBJD_SIZE_DELTA_FACTOR);
+
+                    println!(
+                        "Raytracer Upd: {} object at {}, {}",
+                        if multiplier == 1. {
+                            "Enlarged"
+                        } else {
+                            "Shrunk"
+                        },
+                        mouse_x,
+                        mouse_y
+                    );
+                    re_init_rays = true;
+                } else {
+                    println!(
+                        "Raytracer ~Err: Failed to enlarge or shrink an object, there is no object at {}, {}",
+                        mouse_x, mouse_y
+                    );
+                }
+            }
+            // ============================================================
+            // =============== CHANGE ORIENTATION
+            // ============================================================
+            else if is_key_down(KEYB_RTC_INC_ORIENTATION) || is_key_down(KEYB_RTC_DEC_ORIENTATION)
+            {
+                if object_at_cursor_type(mouse_x, mouse_y, false) != "None" {
+                    let mut delta = if is_key_down(KEYB_RTC_INC_ORIENTATION) {
+                        OBJD_ORIENTATION_DELTA_FACTOR
+                    } else {
+                        -OBJD_ORIENTATION_DELTA_FACTOR
+                    };
+
+                    if is_key_down(KeyCode::LeftShift) {
+                        delta *= KEYB_RTC_MULTIPLIER as f32;
+                    }
+
+                    object_change_orientation(mouse_x, mouse_y, delta);
+
+                    println!(
+                        "Raytracer Upd: {} orientation for object at {}, {}",
+                        if delta > 0.0 {
+                            "Increased"
+                        } else {
+                            "Decreased"
+                        },
+                        mouse_x,
+                        mouse_y
+                    );
+
+                    re_init_rays = true;
+                } else {
+                    println!(
+                        "Raytracer ~Err: Failed to change orientation, there is no object at {}, {}",
+                        mouse_x, mouse_y
+                    );
+                }
             }
             // ============================================================
             // =============== DEBUG AND OTHER KEYBINDS
             // ============================================================
-            else if is_key_pressed(KEYB_DELETE) && collection_size >= 1 {
-                if let Some(i) = object_at_cursor_index(mouse_x, mouse_y) {
-                    remove_object_at_index(i);
-                    println!("Raytracer Upd: Deleted object at {}, {}", mouse_x, mouse_y);
-                };
-                re_init_rays = true;
-
-                collection_size -= 1;
+            else if is_key_pressed(KEYB_DELETE) {
+                if collection_size >= 1 {
+                    if let Some(i) = object_at_cursor_index(mouse_x, mouse_y) {
+                        println!("Raytracer Upd: Deleted object at {}, {}", mouse_x, mouse_y);
+                        remove_object_at_index(i);
+                        re_init_rays = true;
+                        collection_size -= 1;
+                    } else {
+                        println!(
+                            "Raytracer ~Err: Failed to delete object, there is no object at {}, {}",
+                            mouse_x, mouse_y
+                        );
+                    }
+                } else {
+                    println!(
+                        "Raytracer ~Err: Failed to delete object, there is no object on the scene"
+                    )
+                }
             } else if is_key_pressed(KEYB_DEBUG_SHOW_ALL_OBJ) {
                 println!("Raytracer Debug: Showing all objects inside OBJ_COLLECTION.");
                 print_all_objects();
