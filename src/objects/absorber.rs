@@ -65,6 +65,28 @@ impl Movable for Absorbers {
     }
 }
 
+impl VariableSize for Absorbers {
+    /// Changes the radius of the absorber
+    ///
+    /// # Parameters
+    ///
+    /// * `factor` - The change size factor
+    fn change_radius(&mut self, factor: f32) {
+        match self {
+            Absorbers::AbsorberPerfect(obj) => {
+                let new_radius = obj.base_object.radius + factor;
+                obj.base_object.radius = if new_radius > 0.0 { new_radius } else { 0.0 };
+            }
+        }
+    }
+
+    fn get_radius(&self) -> f32 {
+        match self {
+            Absorbers::AbsorberPerfect(obj) => obj.base_object.radius,
+        }
+    }
+}
+
 /// A perfect absorber that completely blocks all light
 ///
 /// This absorber type will stop any ray that intersects with it.

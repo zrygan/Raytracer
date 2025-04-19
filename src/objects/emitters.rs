@@ -9,7 +9,9 @@
 
 use macroquad::shapes::draw_circle;
 
-use super::behavior::{Drawable, Movable};
+use crate::globals::{OBJC_MAX_RAY_COUNT, OBJC_MIN_RAY_COUNT, OBJD_RAY_COUNT};
+
+use super::behavior::{Drawable, Movable, VariableSize};
 use super::circle::ObjectCircle;
 use super::ray::{ObjectRay, init_collimated_rays, init_isotropic_rays, init_spotlight_rays};
 
@@ -25,6 +27,10 @@ pub enum Emitters {
     EmitterCollimated(EmitterCollimated),
     /// Spotlight emitter that produces a cone-shaped beam
     EmitterSpotlight(EmitterSpotlight),
+}
+
+pub trait VariableRays {
+    fn change_rays_count(&mut self, change_rays: i32);
 }
 
 impl Drawable for Emitters {
@@ -52,11 +58,23 @@ impl Movable for Emitters {
     fn move_object(&mut self, pos_x: f32, pos_y: f32) {
         match self {
             Emitters::EmitterIsotropic(obj) => {
+                let ray_count = if obj.rays.is_empty() {
+                    OBJD_RAY_COUNT
+                } else {
+                    obj.rays.len() as i32
+                };
+
                 obj.base_object.pos_x = pos_x;
                 obj.base_object.pos_y = pos_y;
-                obj.rays = init_isotropic_rays(pos_x, pos_y);
+                obj.rays = init_isotropic_rays(pos_x, pos_y, ray_count);
             }
             Emitters::EmitterCollimated(obj) => {
+                let ray_count = if obj.base_emitter.rays.is_empty() {
+                    OBJD_RAY_COUNT
+                } else {
+                    obj.base_emitter.rays.len() as i32
+                };
+
                 obj.base_emitter.base_object.pos_x = pos_x;
                 obj.base_emitter.base_object.pos_y = pos_y;
                 obj.base_emitter.rays = init_collimated_rays(
@@ -64,13 +82,141 @@ impl Movable for Emitters {
                     pos_y,
                     obj.orientation,
                     obj.collimated_beam_diameter,
+                    ray_count,
                 );
             }
             Emitters::EmitterSpotlight(obj) => {
+                let ray_count = if obj.base_emitter.rays.is_empty() {
+                    OBJD_RAY_COUNT
+                } else {
+                    obj.base_emitter.rays.len() as i32
+                };
+
                 obj.base_emitter.base_object.pos_x = pos_x;
                 obj.base_emitter.base_object.pos_y = pos_y;
-                obj.base_emitter.rays =
-                    init_spotlight_rays(pos_x, pos_y, obj.orientation, obj.spotlight_beam_angle);
+                obj.base_emitter.rays = init_spotlight_rays(
+                    pos_x,
+                    pos_y,
+                    obj.orientation,
+                    obj.spotlight_beam_angle,
+                    ray_count,
+                );
+            }
+        }
+    }
+}
+
+impl VariableSize for Emitters {
+    fn change_radius(&mut self, factor: f32) {
+        match self {
+            Emitters::EmitterIsotropic(obj) => {
+                if obj.base_object.radius >= 30. && factor < 0. {
+                    obj.base_object.radius += factor
+                } else if factor > 0. {
+                    obj.base_object.radius += factor;
+                }
+            }
+            Emitters::EmitterCollimated(obj) => {
+                if obj.base_emitter.base_object.radius >= 30. && factor < 0. {
+                    obj.base_emitter.base_object.radius += factor
+                } else if factor > 0. {
+                    obj.base_emitter.base_object.radius += factor;
+                }
+            }
+            Emitters::EmitterSpotlight(obj) => {
+                if obj.base_emitter.base_object.radius >= 30. && factor < 0. {
+                    obj.base_emitter.base_object.radius += factor
+                } else if factor > 0. {
+                    obj.base_emitter.base_object.radius += factor;
+                }
+            }
+        }
+    }
+
+    fn get_radius(&self) -> f32 {
+        match self {
+            Emitters::EmitterIsotropic(obj) => return obj.base_object.radius,
+
+            Emitters::EmitterCollimated(obj) => return obj.base_emitter.base_object.radius,
+
+            Emitters::EmitterSpotlight(obj) => return obj.base_emitter.base_object.radius,
+        }
+    }
+}
+
+impl VariableRays for Emitters {
+    fn change_rays_count(&mut self, change_rays: i32) {
+        fn check_rays_range(ray_count: i32, change_rays: i32) {
+            if ray_count + change_rays > OBJC_MAX_RAY_COUNT {
+                eprintln!(
+                    "Raytracer ~Err. Added too many rays, more than OBJC_MAX_RAY_COUNT. Program will still run, but may become unstable since there are too many rays."
+                );
+            } else if ray_count + change_rays < OBJC_MIN_RAY_COUNT {
+                eprintln!(
+                    "Raytracer ~Err. Cannot reduce below minimum ray count of {}. Operation ignored.",
+                    OBJC_MIN_RAY_COUNT
+                );
+            }
+        }
+
+        match self {
+            Emitters::EmitterIsotropic(obj) => {
+                let ray_count = obj.rays.len() as i32;
+
+                // Only proceed if we won't go below the minimum
+                if ray_count + change_rays >= OBJC_MIN_RAY_COUNT {
+                    obj.rays = init_isotropic_rays(
+                        obj.base_object.pos_x,
+                        obj.base_object.pos_y,
+                        ray_count + change_rays,
+                    );
+                    check_rays_range(ray_count, change_rays);
+                } else {
+                    eprintln!(
+                        "Raytracer ~Err. Cannot reduce below minimum ray count of {}.",
+                        OBJC_MIN_RAY_COUNT
+                    );
+                }
+            }
+            Emitters::EmitterCollimated(obj) => {
+                let ray_count = obj.base_emitter.rays.len() as i32;
+
+                // Only proceed if we won't go below the minimum
+                if ray_count + change_rays >= OBJC_MIN_RAY_COUNT {
+                    obj.base_emitter.rays = init_collimated_rays(
+                        obj.base_emitter.base_object.pos_x,
+                        obj.base_emitter.base_object.pos_y,
+                        obj.orientation,
+                        obj.collimated_beam_diameter,
+                        ray_count + change_rays,
+                    );
+                    check_rays_range(ray_count, change_rays);
+                } else {
+                    eprintln!(
+                        "Raytracer ~Err. Cannot reduce below minimum ray count of {}.",
+                        OBJC_MIN_RAY_COUNT
+                    );
+                }
+            }
+            Emitters::EmitterSpotlight(obj) => {
+                let ray_count = obj.base_emitter.rays.len() as i32;
+
+                // Only proceed if we won't go below the minimum
+                if ray_count + change_rays >= OBJC_MIN_RAY_COUNT {
+                    obj.base_emitter.rays = init_spotlight_rays(
+                        obj.base_emitter.base_object.pos_x,
+                        obj.base_emitter.base_object.pos_y,
+                        obj.orientation,
+                        obj.spotlight_beam_angle,
+                        ray_count + change_rays,
+                    );
+                    check_rays_range(ray_count, change_rays);
+                } else {
+                    eprintln!(
+                        "Raytracer ~Err. Cannot reduce below minimum ray count of {}.",
+                        OBJC_MIN_RAY_COUNT
+                    );
+                }
             }
         }
     }

@@ -41,7 +41,7 @@ pub const CORNFLOWER_BLUE: Color = Color::new(0.39, 0.58, 0.92, 1.00);
 /// display quality options and window properties.
 pub const MACROQUAD_HIGH_DPI: bool = false;
 pub const MACROQUAD_FULLSCREEN: bool = false;
-pub const MACROQUAD_SAMPLE_COUNT: i32 = 3; // MSAA sample count
+pub const MACROQUAD_SAMPLE_COUNT: i32 = 10; // MSAA sample count
 pub const MACROQUAD_RESIZEABLE: bool = true;
 
 /// Raytracer Object Collection
@@ -56,7 +56,8 @@ pub static OBJ_COLLECTION: Lazy<RwLock<Vec<RaytracerObjects>>> =
 /// These constants define limitations for object counts to prevent performance issues
 /// and memory overflow.
 pub const OBJC_MAX_OBJ_COUNT: i32 = 100;
-pub const OBJC_MAX_RAY_COUNT: i32 = 25;
+pub const OBJC_MAX_RAY_COUNT: i32 = 100;
+pub const OBJC_MIN_RAY_COUNT: i32 = 3;
 pub const OBJC_MOUSE_EPSILON: f32 = 5.0;
 
 /// Raytracer Default Object Parameters (starts with OBJD_ prefix)
@@ -67,10 +68,12 @@ pub const OBJD_CIRCLE_RADIUS: f32 = 50.0;
 pub const OBJD_CIRCLE_FILL: Color = CORNFLOWER_BLUE;
 pub const OBJD_RAY_WIDTH: f32 = 1.0;
 pub const OBJD_RAY_COLOR: Color = Color::new(0.5, 0.5, 0.5, 1.0);
+pub const OBJD_RAY_COUNT: i32 = 32;
 pub const OBJD_COLLIMATED_BEAM_DIAMETER: f32 = 2.0 * OBJD_CIRCLE_RADIUS;
 pub const OBJD_COLLIMATED_ORIENTATION: f32 = 0.0; // in radians
 pub const OBJD_SPOTLIGHT_BEAM_ANGLE: f32 = PI / 3.0; // in radians
 pub const OBJD_SPOTLIGHT_ORIENTATION: f32 = 0.0; // in radians
+pub const OBJD_ENLARGE_REDUCE_FACTOR: f32 = 5.;
 
 /// Raytracer Keybinds (starts with KEYB_ prefix)
 ///
@@ -83,3 +86,17 @@ pub const KEYB_EMITTER_COLLIMATED: KeyCode = KeyCode::C;
 pub const KEYB_EMITTER_SPOTLIGHT: KeyCode = KeyCode::S;
 pub const KEYB_ABSORBER_PERFECT: KeyCode = KeyCode::P;
 pub const KEYB_DEBUG_SHOW_ALL_OBJ: KeyCode = KeyCode::Backslash;
+
+/// Raytracer Keybinds for Objects (starts with KEYB_RTC_ prefix)
+///
+/// These constants map keyboard keys to specific actions in raytracer when the
+/// user is hovering on a Raytracer object
+pub const KEYB_RTC_ENLARGE: KeyCode = KeyCode::Equal;
+pub const KEYB_RTC_SHRINK: KeyCode = KeyCode::Minus;
+
+/// Raytracer Keybinds for Emitters (starts with KEYB_EMM_ prefix)
+///
+/// These constants  map keyboard keys to specific actions in raytracer when the
+/// user is hovering on a Emitters type object
+pub const KEYB_EMM_ADD_RAYS: KeyCode = KeyCode::RightBracket;
+pub const KEYB_EMM_REDUCE_RAYS: KeyCode = KeyCode::LeftBracket;
