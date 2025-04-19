@@ -69,7 +69,7 @@ pub fn add_object_to_scene(object_type: &str) {
                 OBJD_RAY_COUNT,
             ),
             OBJD_COLLIMATED_ORIENTATION,
-            2.0 * OBJD_CIRCLE_RADIUS,
+            OBJD_COLLIMATED_BEAM_DIAMETER,
         );
 
         add_object_to_collection(RaytracerObjects::Emitters(Emitters::EmitterCollimated(

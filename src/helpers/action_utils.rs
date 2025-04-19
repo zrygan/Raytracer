@@ -11,11 +11,13 @@
 //! author:         Zhean Ganituen
 //! last updated:   April 18, 2025
 
-use macroquad::prelude::warn;
-
 use crate::{
     globals::{OBJ_COLLECTION, OBJC_MOUSE_EPSILON, OBJD_CIRCLE_RADIUS},
-    objects::behavior::{RaytracerObjects, VariableSize},
+    objects::{
+        absorber::Absorbers,
+        behavior::{RaytracerObjects, VariableSize},
+        emitters::*,
+    },
 };
 
 /// Removes an object from the scene at the specified index
@@ -88,26 +90,48 @@ pub fn object_at_cursor_index(mouse_x: f32, mouse_y: f32) -> Option<usize> {
     None
 }
 
-#[warn(unreachable_patterns)]
-pub fn object_at_cursor_type(mouse_x: f32, mouse_y: f32) -> &'static str {
+pub fn get_object_scope(object: &RaytracerObjects) -> ((f32, f32), Option<f32>) {
+    let pos = object.get_pos();
+    let rad = match object {
+        RaytracerObjects::Absorbers(o) => Some(o.get_radius()),
+        RaytracerObjects::ObjectCircle(o) => Some(o.get_radius()),
+        RaytracerObjects::Emitters(o) => Some(o.get_radius()),
+    };
+
+    (pos, rad)
+}
+
+pub fn object_at_cursor_type(mouse_x: f32, mouse_y: f32, specify: bool) -> &'static str {
     let temp = OBJ_COLLECTION.read().unwrap();
 
     for object in temp.iter() {
-        let pos = object.get_pos();
-        let rad = match object {
-            RaytracerObjects::Absorbers(o) => Some(o.get_radius()),
-            RaytracerObjects::ObjectCircle(o) => Some(o.get_radius()),
-            RaytracerObjects::Emitters(o) => Some(o.get_radius()),
-        };
-
+        let (pos, rad) = get_object_scope(object);
         if let Some(r) = rad {
             if (mouse_x - pos.0).abs() < OBJC_MOUSE_EPSILON + r
                 && (mouse_y - pos.1).abs() < OBJC_MOUSE_EPSILON + r
             {
                 return match object {
                     RaytracerObjects::ObjectCircle(_) => "ObjectCircle",
-                    RaytracerObjects::Absorbers(_) => "Absorber",
-                    RaytracerObjects::Emitters(_) => "Emitter",
+                    RaytracerObjects::Absorbers(absorber) => {
+                        if specify {
+                            match absorber {
+                                Absorbers::AbsorberPerfect(_) => "Perfect",
+                            }
+                        } else {
+                            "Absorber"
+                        }
+                    }
+                    RaytracerObjects::Emitters(emitter) => {
+                        if specify {
+                            match emitter {
+                                Emitters::EmitterIsotropic(_) => "Isotropic",
+                                Emitters::EmitterCollimated(_) => "Collimated",
+                                Emitters::EmitterSpotlight(_) => "Spotlight",
+                            }
+                        } else {
+                            "Emitter"
+                        }
+                    }
                 };
             }
         }
