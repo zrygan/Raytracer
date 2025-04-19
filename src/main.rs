@@ -149,7 +149,7 @@ async fn main() {
                 println!("Raytracer Upd: Enlarged object at {}, {}", mouse_x, mouse_y);
                 object_change_size(mouse_x, mouse_y, OBJD_ENLARGE_REDUCE_FACTOR);
                 re_init_rays = true;
-            } else if is_key_down(KEYB_RTC_REDUCE) {
+            } else if is_key_down(KEYB_RTC_SHRINK) {
                 println!("Raytracer Upd: Reduced object at {}, {}", mouse_x, mouse_y);
                 object_change_size(mouse_x, mouse_y, -OBJD_ENLARGE_REDUCE_FACTOR);
                 re_init_rays = true;

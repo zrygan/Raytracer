@@ -92,7 +92,7 @@ pub const KEYB_DEBUG_SHOW_ALL_OBJ: KeyCode = KeyCode::Backslash;
 /// These constants map keyboard keys to specific actions in raytracer when the
 /// user is hovering on a Raytracer object
 pub const KEYB_RTC_ENLARGE: KeyCode = KeyCode::Equal;
-pub const KEYB_RTC_REDUCE: KeyCode = KeyCode::Minus;
+pub const KEYB_RTC_SHRINK: KeyCode = KeyCode::Minus;
 
 /// Raytracer Keybinds for Emitters (starts with KEYB_EMM_ prefix)
 ///
