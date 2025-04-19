@@ -11,7 +11,12 @@
 //! author:         Zhean Ganituen
 //! last updated:   April 18, 2025
 
-use crate::globals::{OBJ_COLLECTION, OBJC_MOUSE_EPSILON, OBJD_CIRCLE_RADIUS};
+use macroquad::prelude::warn;
+
+use crate::{
+    globals::{OBJ_COLLECTION, OBJC_MOUSE_EPSILON, OBJD_CIRCLE_RADIUS},
+    objects::behavior::{RaytracerObjects, VariableSize},
+};
 
 /// Removes an object from the scene at the specified index
 ///
@@ -34,7 +39,7 @@ use crate::globals::{OBJ_COLLECTION, OBJC_MOUSE_EPSILON, OBJD_CIRCLE_RADIUS};
 /// remove_object_at_index(0);
 ///
 /// // Remove an object found at the cursor position
-/// if let Some(index) = object_at_cursor(mouse_x, mouse_y) {
+/// if let Some(index) = object_at_cursor_index(mouse_x, mouse_y) {
 ///     remove_object_at_index(index);
 /// }
 /// ```
@@ -67,7 +72,7 @@ pub fn remove_object_at_index(index: usize) {
 /// Objects are considered "at the cursor" if the distance between the cursor
 /// and object's center is less than `OBJC_MOUSE_EPSILON + OBJD_CIRCLE_RADIUS`,
 /// which accounts for both the cursor's proximity tolerance and the object's size.
-pub fn object_at_cursor(mouse_x: f32, mouse_y: f32) -> Option<usize> {
+pub fn object_at_cursor_index(mouse_x: f32, mouse_y: f32) -> Option<usize> {
     let temp = OBJ_COLLECTION.read().unwrap();
 
     for (index, object) in temp.iter().enumerate() {
@@ -81,6 +86,34 @@ pub fn object_at_cursor(mouse_x: f32, mouse_y: f32) -> Option<usize> {
     }
 
     None
+}
+
+#[warn(unreachable_patterns)]
+pub fn object_at_cursor_type(mouse_x: f32, mouse_y: f32) -> &'static str {
+    let temp = OBJ_COLLECTION.read().unwrap();
+
+    for object in temp.iter() {
+        let pos = object.get_pos();
+        let rad = match object {
+            RaytracerObjects::Absorbers(o) => Some(o.get_radius()),
+            RaytracerObjects::ObjectCircle(o) => Some(o.get_radius()),
+            RaytracerObjects::Emitters(o) => Some(o.get_radius()),
+        };
+
+        if let Some(r) = rad {
+            if (mouse_x - pos.0).abs() < OBJC_MOUSE_EPSILON + r
+                && (mouse_y - pos.1).abs() < OBJC_MOUSE_EPSILON + r
+            {
+                return match object {
+                    RaytracerObjects::ObjectCircle(_) => "ObjectCircle",
+                    RaytracerObjects::Absorbers(_) => "Absorber",
+                    RaytracerObjects::Emitters(_) => "Emitter",
+                };
+            }
+        }
+    }
+
+    "None"
 }
 
 /// Prints details of all objects in the scene to the console

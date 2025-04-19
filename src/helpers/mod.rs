@@ -15,11 +15,11 @@
 //! common operations without cluttering the core simulation code.
 //!
 //! ```rust
-//! use crate::helpers::action_utils::object_at_cursor;
+//! use crate::helpers::action_utils::object_at_cursor_index;
 //! use crate::helpers::object_utils::linspace;
 //!
 //! // Find an object at the current cursor position
-//! if let Some(index) = object_at_cursor(mouse_x, mouse_y) {
+//! if let Some(index) = object_at_cursor_index(mouse_x, mouse_y) {
 //!     // Do something with the object
 //! }
 //!

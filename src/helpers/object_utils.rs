@@ -7,8 +7,8 @@
 //! author:         Zhean Ganituen (zrygan)
 //! last updated:   April 18, 2025
 
-use crate::OBJ_COLLECTION;
 use crate::RaytracerObjects;
+use crate::globals::{OBJ_COLLECTION, OBJD_RAY_COUNT};
 use crate::objects::emitters::Emitters;
 use crate::objects::ray::{init_collimated_rays, init_isotropic_rays, init_spotlight_rays};
 
@@ -76,22 +76,43 @@ pub fn init_all_rays() {
         if let RaytracerObjects::Emitters(emitter_enum) = obj {
             match emitter_enum {
                 Emitters::EmitterIsotropic(e) => {
-                    e.rays = init_isotropic_rays(e.base_object.pos_x, e.base_object.pos_y)
+                    let ray_count = if e.rays.is_empty() {
+                        OBJD_RAY_COUNT
+                    } else {
+                        e.rays.len() as i32
+                    };
+
+                    e.rays =
+                        init_isotropic_rays(e.base_object.pos_x, e.base_object.pos_y, ray_count)
                 }
                 Emitters::EmitterCollimated(e) => {
+                    let ray_count = if e.base_emitter.rays.is_empty() {
+                        OBJD_RAY_COUNT
+                    } else {
+                        e.base_emitter.rays.len() as i32
+                    };
+
                     e.base_emitter.rays = init_collimated_rays(
                         e.base_emitter.base_object.pos_x,
                         e.base_emitter.base_object.pos_y,
                         e.orientation,
                         e.collimated_beam_diameter,
+                        ray_count,
                     )
                 }
                 Emitters::EmitterSpotlight(e) => {
+                    let ray_count = if e.base_emitter.rays.is_empty() {
+                        OBJD_RAY_COUNT
+                    } else {
+                        e.base_emitter.rays.len() as i32
+                    };
+
                     e.base_emitter.rays = init_spotlight_rays(
                         e.base_emitter.base_object.pos_x,
                         e.base_emitter.base_object.pos_y,
                         e.orientation,
                         e.spotlight_beam_angle,
+                        ray_count,
                     )
                 }
             }

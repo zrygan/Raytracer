@@ -102,12 +102,12 @@ impl Drawable for ObjectRay {
 /// # Returns
 ///
 /// A vector of `ObjectRay`s arranged in a circular pattern from the given point
-pub fn init_isotropic_rays(start_x: f32, start_y: f32) -> Vec<ObjectRay> {
-    let mut rays: Vec<ObjectRay> = Vec::with_capacity(OBJC_MAX_RAY_COUNT as usize);
+pub fn init_isotropic_rays(start_x: f32, start_y: f32, ray_count: i32) -> Vec<ObjectRay> {
+    let mut rays: Vec<ObjectRay> = Vec::with_capacity(ray_count as usize);
 
-    for index in 0..OBJC_MAX_RAY_COUNT {
+    for index in 0..ray_count {
         // Calculate angle for each ray to distribute them evenly in a circle
-        let angle = (index as f32 / OBJC_MAX_RAY_COUNT as f32) * 2.0 * PI;
+        let angle = (index as f32 / ray_count as f32) * 2.0 * PI;
 
         rays.push(ObjectRay::new(
             start_x,
@@ -142,8 +142,9 @@ pub fn init_collimated_rays(
     start_y: f32,
     orientation: f32,
     collimated_beam_diameter: f32,
+    ray_count: i32,
 ) -> Vec<ObjectRay> {
-    let mut rays: Vec<ObjectRay> = Vec::with_capacity(OBJC_MAX_RAY_COUNT as usize);
+    let mut rays: Vec<ObjectRay> = Vec::with_capacity(ray_count as usize);
 
     // Calculate the direction vector components using the orientation angle
     let cos_x = orientation.cos();
@@ -154,12 +155,12 @@ pub fn init_collimated_rays(
     let perp = (-sin_y, cos_x);
 
     // Calculate spacing between rays to achieve the desired beam diameter
-    let spacing: f32 = collimated_beam_diameter / (OBJC_MAX_RAY_COUNT - 1) as f32;
+    let spacing: f32 = collimated_beam_diameter / (ray_count - 1) as f32;
 
-    for index in 0..OBJC_MAX_RAY_COUNT {
+    for index in 0..ray_count {
         // Calculate offset from center for each ray
         // This creates evenly spaced rays centered on the emitter position
-        let offset = (index - (OBJC_MAX_RAY_COUNT - 1) / 2) as f32 * spacing;
+        let offset = (index - (ray_count - 1) / 2) as f32 * spacing;
         let offset_x = offset * perp.0;
         let offset_y = offset * perp.1;
 
@@ -204,8 +205,9 @@ pub fn init_spotlight_rays(
     start_y: f32,
     orientation: f32,
     spotlight_beam_angle: f32,
+    ray_count: i32,
 ) -> Vec<ObjectRay> {
-    let mut rays: Vec<ObjectRay> = Vec::with_capacity(OBJC_MAX_RAY_COUNT as usize);
+    let mut rays: Vec<ObjectRay> = Vec::with_capacity(ray_count as usize);
 
     // Calculate the half-angle to evenly distribute rays on both sides of central orientation
     let half_angle = spotlight_beam_angle / 2.0;
@@ -215,7 +217,7 @@ pub fn init_spotlight_rays(
     let angles = linspace(
         orientation - half_angle,
         orientation + half_angle,
-        OBJC_MAX_RAY_COUNT,
+        ray_count,
     )
     .expect("Number of rays for spotlight must be at least 2.");
 

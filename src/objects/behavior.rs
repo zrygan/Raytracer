@@ -163,4 +163,5 @@ pub trait Movable {
 
 pub trait VariableSize {
     fn change_radius(&mut self, factor: f32);
+    fn get_radius(&self) -> f32;
 }

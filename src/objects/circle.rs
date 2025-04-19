@@ -92,4 +92,8 @@ impl VariableSize for ObjectCircle {
             self.radius += factor;
         }
     }
+
+    fn get_radius(&self) -> f32 {
+        self.radius
+    }
 }

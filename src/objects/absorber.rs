@@ -76,6 +76,12 @@ impl VariableSize for Absorbers {
             Absorbers::AbsorberPerfect(obj) => obj.base_object.radius += factor,
         }
     }
+
+    fn get_radius(&self) -> f32 {
+        match self {
+            Absorbers::AbsorberPerfect(obj) => obj.base_object.radius,
+        }
+    }
 }
 
 /// A perfect absorber that completely blocks all light

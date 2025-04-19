@@ -14,11 +14,14 @@ mod user_input;
 
 use globals::*;
 use helpers::{
-    action_utils::{object_at_cursor, print_all_objects, remove_object_at_index},
+    action_utils::{
+        object_at_cursor_index, object_at_cursor_type, print_all_objects, remove_object_at_index,
+    },
     object_utils::init_all_rays,
 };
 use macroquad::prelude::*;
 use macroquad::time::draw_fps;
+use objects::emitters::*;
 use objects::{behavior::*, occlusion::check_for_occlusion};
 use std::{thread::sleep, time::Duration};
 use user_input::{add_to_scene_actions::add_object_to_scene, emitter_actions::object_change_size};
@@ -64,6 +67,8 @@ async fn main() {
     let mut re_init_rays: bool = false;
 
     let mut cursor_on_object_index: Option<usize> = None;
+    let mut cursor_on_object_type: &'static str;
+    let mut cursor_is_moving_object: bool = false;
     let mut mouse_x: f32;
     let mut mouse_y: f32;
     let mut mouse_delta: Vec2 = vec2(0.0, 0.0);
@@ -77,6 +82,10 @@ async fn main() {
     );
 
     loop {
+        let add_rays_pressed = is_key_pressed(KEYB_EMM_ADD_RAYS) || is_key_down(KEYB_EMM_ADD_RAYS);
+        let reduce_rays_pressed =
+            is_key_pressed(KEYB_EMM_REDUCE_RAYS) || is_key_down(KEYB_EMM_REDUCE_RAYS);
+
         ft = get_frame_time();
         // Clear the screen with the background color
         clear_background(WINDOW_BG_COLOR);
@@ -146,10 +155,38 @@ async fn main() {
                 re_init_rays = true;
             }
             // ============================================================
+            // =============== INCREASE/DECREASE EMITTER RAYS
+            // ============================================================
+            else if add_rays_pressed || reduce_rays_pressed {
+                // Update object info
+                cursor_on_object_type = object_at_cursor_type(mouse_x, mouse_y);
+                cursor_on_object_index = object_at_cursor_index(mouse_x, mouse_y);
+
+                if cursor_on_object_type == "Emitter" {
+                    if let Some(index) = cursor_on_object_index {
+                        let mut collection = OBJ_COLLECTION.write().unwrap();
+
+                        if let Some(RaytracerObjects::Emitters(o)) = collection.get_mut(index) {
+                            let ray_delta = if add_rays_pressed { 1 } else { -1 };
+                            o.change_rays_count(ray_delta);
+
+                            println!(
+                                "Raytracer Upd: {} rays to Emitter object at {}, {}",
+                                if ray_delta > 0 { "Adding" } else { "Reducing" },
+                                mouse_x,
+                                mouse_y
+                            );
+
+                            re_init_rays = true;
+                        }
+                    }
+                }
+            }
+            // ============================================================
             // =============== DEBUG AND OTHER KEYBINDS
             // ============================================================
             else if is_key_pressed(KEYB_DELETE) && collection_size >= 1 {
-                if let Some(i) = object_at_cursor(mouse_x, mouse_y) {
+                if let Some(i) = object_at_cursor_index(mouse_x, mouse_y) {
                     remove_object_at_index(i);
                     println!("Raytracer Upd: Deleted object at {}, {}", mouse_x, mouse_y);
                 };
@@ -170,18 +207,21 @@ async fn main() {
 
         // Check if the user wants to move an object
         if is_mouse_button_down(MouseButton::Left) {
-            cursor_on_object_index = object_at_cursor(mouse_x, mouse_y);
+            cursor_on_object_index = object_at_cursor_index(mouse_x, mouse_y);
+            if cursor_on_object_index.is_some() {
+                cursor_is_moving_object = true
+            }
         }
 
         // If the user is not moving an object, remove dragging_index
-        if !is_mouse_button_down(MouseButton::Left) && (cursor_on_object_index.is_some()) {
+        if !is_mouse_button_down(MouseButton::Left) && cursor_is_moving_object == true {
             println!("Raytracer Upd: Stopped moving object.");
-            cursor_on_object_index = None;
+            cursor_is_moving_object = false;
         }
 
         // If user is moving the cursor and is dragging an object,
         // move that object
-        if mouse_delta != vec2(0.0, 0.0) {
+        if mouse_delta != vec2(0.0, 0.0) && cursor_is_moving_object {
             if let Some(index) = cursor_on_object_index {
                 let mut collection = OBJ_COLLECTION.write().unwrap();
                 if let Some(object) = collection.get_mut(index) {

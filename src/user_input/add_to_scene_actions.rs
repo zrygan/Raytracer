@@ -8,7 +8,8 @@
 
 use crate::globals::{
     OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS, OBJD_COLLIMATED_BEAM_DIAMETER,
-    OBJD_COLLIMATED_ORIENTATION, OBJD_SPOTLIGHT_BEAM_ANGLE, OBJD_SPOTLIGHT_ORIENTATION,
+    OBJD_COLLIMATED_ORIENTATION, OBJD_RAY_COUNT, OBJD_SPOTLIGHT_BEAM_ANGLE,
+    OBJD_SPOTLIGHT_ORIENTATION,
 };
 use crate::helpers::object_utils::add_object_to_collection;
 use crate::objects::absorber::{AbsorberPerfect, Absorbers};
@@ -50,7 +51,7 @@ pub fn add_object_to_scene(object_type: &str) {
         // Create an isotropic emitter (radiating in all directions)
         let new_object = EmitterIsotropic::new(
             ObjectCircle::new(mouse_x, mouse_y, OBJD_CIRCLE_FILL, OBJD_CIRCLE_RADIUS),
-            init_isotropic_rays(mouse_x, mouse_y),
+            init_isotropic_rays(mouse_x, mouse_y, OBJD_RAY_COUNT),
         );
 
         add_object_to_collection(RaytracerObjects::Emitters(Emitters::EmitterIsotropic(
@@ -65,6 +66,7 @@ pub fn add_object_to_scene(object_type: &str) {
                 mouse_y,
                 OBJD_COLLIMATED_ORIENTATION,
                 OBJD_COLLIMATED_BEAM_DIAMETER,
+                OBJD_RAY_COUNT,
             ),
             OBJD_COLLIMATED_ORIENTATION,
             2.0 * OBJD_CIRCLE_RADIUS,
@@ -82,6 +84,7 @@ pub fn add_object_to_scene(object_type: &str) {
                 mouse_y,
                 OBJD_SPOTLIGHT_ORIENTATION,
                 OBJD_SPOTLIGHT_BEAM_ANGLE,
+                OBJD_RAY_COUNT,
             ),
             OBJD_SPOTLIGHT_ORIENTATION,
             OBJD_SPOTLIGHT_BEAM_ANGLE,
