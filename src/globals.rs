@@ -73,7 +73,8 @@ pub const OBJD_COLLIMATED_BEAM_DIAMETER: f32 = 2.0 * OBJD_CIRCLE_RADIUS;
 pub const OBJD_COLLIMATED_ORIENTATION: f32 = 0.0; // in radians
 pub const OBJD_SPOTLIGHT_BEAM_ANGLE: f32 = PI / 3.0; // in radians
 pub const OBJD_SPOTLIGHT_ORIENTATION: f32 = 0.0; // in radians
-pub const OBJD_ENLARGE_REDUCE_FACTOR: f32 = 5.;
+pub const OBJD_SIZE_DELTA_FACTOR: f32 = 5.;
+pub const OBJD_ORIENTATION_DELTA_FACTOR: f32 = 0.01;
 
 /// Raytracer Keybinds (starts with KEYB_ prefix)
 ///
@@ -91,8 +92,11 @@ pub const KEYB_DEBUG_SHOW_ALL_OBJ: KeyCode = KeyCode::Backslash;
 ///
 /// These constants map keyboard keys to specific actions in raytracer when the
 /// user is hovering on a Raytracer object
+pub const KEYB_RTC_MULTIPLIER: i32 = 3;
 pub const KEYB_RTC_ENLARGE: KeyCode = KeyCode::Equal;
 pub const KEYB_RTC_SHRINK: KeyCode = KeyCode::Minus;
+pub const KEYB_RTC_INC_ORIENTATION: KeyCode = KeyCode::Left;
+pub const KEYB_RTC_DEC_ORIENTATION: KeyCode = KeyCode::Right;
 
 /// Raytracer Keybinds for Emitters (starts with KEYB_EMM_ prefix)
 ///

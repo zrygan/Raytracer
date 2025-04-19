@@ -165,3 +165,7 @@ pub trait VariableSize {
     fn change_radius(&mut self, factor: f32);
     fn get_radius(&self) -> f32;
 }
+
+pub trait VariableOrientation {
+    fn change_orientation(&mut self, factor: f32);
+}

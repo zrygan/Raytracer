@@ -11,7 +11,7 @@ use macroquad::shapes::draw_circle;
 
 use crate::globals::{OBJC_MAX_RAY_COUNT, OBJC_MIN_RAY_COUNT, OBJD_RAY_COUNT};
 
-use super::behavior::{Drawable, Movable, VariableSize};
+use super::behavior::{Drawable, Movable, VariableOrientation, VariableSize};
 use super::circle::ObjectCircle;
 use super::ray::{ObjectRay, init_collimated_rays, init_isotropic_rays, init_spotlight_rays};
 
@@ -140,6 +140,20 @@ impl VariableSize for Emitters {
             Emitters::EmitterCollimated(obj) => return obj.base_emitter.base_object.radius,
 
             Emitters::EmitterSpotlight(obj) => return obj.base_emitter.base_object.radius,
+        }
+    }
+}
+
+impl VariableOrientation for Emitters {
+    /// Changes the orientation of the emitter.
+    ///
+    /// This method applies the orientation change only to `EmitterCollimated`
+    /// and `EmitterSpotlight` variants. Other variants are unaffected.
+    fn change_orientation(&mut self, factor: f32) {
+        match self {
+            Emitters::EmitterCollimated(obj) => obj.orientation += factor,
+            Emitters::EmitterSpotlight(obj) => obj.orientation += factor,
+            _ => {}
         }
     }
 }
