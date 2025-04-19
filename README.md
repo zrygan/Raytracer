@@ -79,6 +79,18 @@ All objects are created at the cursor position with default parameters. Default 
 | `backspace` | Delete object at cursor position |
 | `\` | Debug tool: show all objects in scene |
 
+**Keybinds for hovering on a `RaytracerObject`**
+| Key | Action |
+|-----|-----   |
+| `=` | Enlarge |
+| `-` | Shrink |
+
+**Keybinds for hovering on an `Emitters` type**
+| Key | Action |
+|-----| -----  |
+| `[` | Add a ray | 
+| `]` | Remove a ray |
+
 ## Features
 
 ### Light Emitters
