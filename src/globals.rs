@@ -105,8 +105,11 @@ pub const KEYB_RTC_DEC_ORIENTATION: KeyCode = KeyCode::Right;
 pub const KEYB_EMM_INC_RAYS: KeyCode = KeyCode::RightBracket;
 pub const KEYB_EMM_DEC_RAYS: KeyCode = KeyCode::LeftBracket;
 
-/// Raytracer Keybinds for Collimators (starts with KEYB_COLM_ prefix)
+/// Raytracer Secondary Keybinds and Delta for Emitters
 /// These constants map keyboard keys to specific actions in raytracer when the
-/// user is hovering on an EmitterCollimated type object
-pub const KEYB_COLM_INC_BEAM_DIAMETER: KeyCode = KeyCode::Semicolon;
-pub const KEYB_COLM_DEC_BEAM_DIAMETER: KeyCode = KeyCode::Apostrophe;
+/// user is hovering on an (specifically) EmitterCollimated and EmitterSpotlight
+/// type object
+pub const KEYB_EMM_SEC_INC: KeyCode = KeyCode::Semicolon;
+pub const KEYB_EMM_SEC_DEC: KeyCode = KeyCode::Apostrophe;
+pub const KEYB_EMM_SEC_COLL_WIDTH_DELTA: i32 = 1;
+pub const KEYB_EMM_SEC_SPOT_ANGLE_DELTA: f32 = 0.01;
