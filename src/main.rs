@@ -90,11 +90,11 @@ async fn main() {
         let keybind_decrease_rays =
             is_key_pressed(KEYB_EMM_DEC_RAYS) || is_key_down(KEYB_EMM_DEC_RAYS);
 
-        let keybind_increase_collimated_beam_diameter =
-            is_key_pressed(KEYB_COLM_INC_BEAM_DIAMETER) || is_key_down(KEYB_COLM_INC_BEAM_DIAMETER);
+        let keybind_emitter_secondary_inc =
+            is_key_pressed(KEYB_EMM_SEC_INC) || is_key_down(KEYB_EMM_SEC_INC);
 
-        let keybind_decrease_collimated_beam_diameter =
-            is_key_pressed(KEYB_COLM_DEC_BEAM_DIAMETER) || is_key_down(KEYB_COLM_DEC_BEAM_DIAMETER);
+        let keybind_emitter_secondary_dec =
+            is_key_pressed(KEYB_EMM_SEC_DEC) || is_key_down(KEYB_EMM_SEC_DEC);
 
         ft = get_frame_time();
         // Clear the screen with the background color
@@ -168,45 +168,103 @@ async fn main() {
                 }
             }
             // ============================================================
-            // =============== INCREASE/DECREASE COLLIMATED BEAM WIDTH
+            // =============== INCREASE/DECREASE SECONDARY TRAIT
+            // ===== COLLIMATED = Collimated Beam Diameter
+            // ===== SPOTLIGHT  = Spotlight Beam Angle
             // ============================================================
-            else if keybind_increase_collimated_beam_diameter
-                || keybind_decrease_collimated_beam_diameter
-            {
+            else if keybind_emitter_secondary_inc || keybind_emitter_secondary_dec {
                 cursor_on_object_type = object_at_cursor_type(mouse_x, mouse_y, true);
                 cursor_on_object_index = object_at_cursor_index(mouse_x, mouse_y);
 
-                if cursor_on_object_type == "Collimated" {
-                    if let Some(index) = cursor_on_object_index {
-                        let mut collection = OBJ_COLLECTION.write().unwrap();
-
+                if let Some(index) = cursor_on_object_index {
+                    let mut collection = OBJ_COLLECTION.write().unwrap();
+                    if cursor_on_object_type == "Collimated" {
                         if let Some(RaytracerObjects::Emitters(Emitters::EmitterCollimated(o))) =
                             collection.get_mut(index)
                         {
-                            let mut width_delta = if keybind_increase_collimated_beam_diameter {
-                                1
+                            let mut width_delta = if keybind_emitter_secondary_inc {
+                                KEYB_EMM_SEC_COLL_WIDTH_DELTA
                             } else {
-                                -1
+                                -KEYB_EMM_SEC_COLL_WIDTH_DELTA
                             };
 
                             if is_key_down(KeyCode::LeftShift) {
-                                width_delta *= KEYB_RTC_MULTIPLIER;
+                                width_delta *= KEYB_RTC_MULTIPLIER
+                            };
+
+                            // Make sure we don't go below minimum width
+                            if o.collimated_beam_diameter + width_delta as f32 <= 0.0
+                                && width_delta < 0
+                            {
+                                println!("Raytracer ~Err: Cannot decrease beam diameter below 0");
+                                // Skip the update
+                            } else {
+                                // Apply the width change
+                                o.collimated_beam_diameter += width_delta as f32;
+
+                                println!(
+                                    "Raytracer Upd: {} collimated beam diameter to Emitter object at {}, {}",
+                                    if width_delta > 0 {
+                                        "Increasing"
+                                    } else {
+                                        "Decreasing"
+                                    },
+                                    mouse_x,
+                                    mouse_y
+                                );
+
+                                re_init_rays = true;
                             }
+                        }
+                    } else if cursor_on_object_type == "Spotlight" {
+                        if let Some(RaytracerObjects::Emitters(Emitters::EmitterSpotlight(o))) =
+                            collection.get_mut(index)
+                        {
+                            let mut angle_delta = if keybind_emitter_secondary_inc {
+                                KEYB_EMM_SEC_SPOT_ANGLE_DELTA
+                            } else {
+                                -KEYB_EMM_SEC_SPOT_ANGLE_DELTA
+                            };
 
-                            o.collimated_beam_diameter += width_delta as f32;
+                            if is_key_down(KeyCode::LeftShift) {
+                                angle_delta *= KEYB_RTC_MULTIPLIER as f32;
+                            };
 
-                            println!(
-                                "Raytracer Upd: {} collimated beam diameter to Emitter object at {}, {}",
-                                if width_delta > 0 {
-                                    "Increasing"
-                                } else {
-                                    "Decreasing"
-                                },
-                                mouse_x,
-                                mouse_y
-                            );
+                            // Define min and max angle bounds (0 to 2π)
+                            let min_angle: f32 = 0.0;
+                            let max_angle: f32 = std::f32::consts::PI * 2.0; // 360 degrees in radians
 
-                            re_init_rays = true;
+                            // Check if new angle would be outside bounds
+                            let new_angle = o.spotlight_beam_angle + angle_delta;
+
+                            if new_angle < min_angle && angle_delta < 0.0 {
+                                println!(
+                                    "Raytracer ~Err: Cannot decrease spotlight beam angle below 0 radians"
+                                );
+                                // Skip the update
+                            } else if new_angle > max_angle && angle_delta > 0.0 {
+                                println!(
+                                    "Raytracer ~Err: Cannot increase spotlight beam angle above 2π radians (360°)"
+                                );
+                                // Skip the update
+                            } else {
+                                // Apply the angle change
+                                o.spotlight_beam_angle = new_angle;
+
+                                println!(
+                                    "Raytracer Upd: {} spotlight beam angle to Emitter object at {}, {} (current: {:.2} radians)",
+                                    if angle_delta > 0.0 {
+                                        "Increasing"
+                                    } else {
+                                        "Decreasing"
+                                    },
+                                    mouse_x,
+                                    mouse_y,
+                                    o.spotlight_beam_angle
+                                );
+
+                                re_init_rays = true;
+                            }
                         }
                     }
                 }
