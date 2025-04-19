@@ -145,6 +145,10 @@ impl VariableSize for Emitters {
 }
 
 impl VariableOrientation for Emitters {
+    /// Changes the orientation of the emitter.
+    ///
+    /// This method applies the orientation change only to `EmitterCollimated`
+    /// and `EmitterSpotlight` variants. Other variants are unaffected.
     fn change_orientation(&mut self, factor: f32) {
         match self {
             Emitters::EmitterCollimated(obj) => obj.orientation += factor,

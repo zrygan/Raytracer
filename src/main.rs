@@ -227,7 +227,8 @@ async fn main() {
             // =============== ENLARGE AND REDUCE
             // ============================================================
             else if is_key_down(KEYB_RTC_ENLARGE) || is_key_down(KEYB_RTC_SHRINK) {
-                if object_at_cursor_type(mouse_x, mouse_y, false) != "None" {
+                let cursor_object_type = object_at_cursor_type(mouse_x, mouse_y, false);
+                if cursor_object_type != "None" {
                     let mut multiplier = if is_key_down(KEYB_RTC_ENLARGE) {
                         1.
                     } else {
